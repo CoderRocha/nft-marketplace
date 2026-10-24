@@ -96,6 +96,6 @@ export default defineConfig(
   {
     files: ['e2e/**', '*.config.ts'],
     languageOptions: { globals: globals.node },
-    rules: { 'no-restricted-imports': 'off' },
+    rules: { 'no-restricted-imports': 'off', 'react-hooks/rules-of-hooks': 'off' },
   },
 )

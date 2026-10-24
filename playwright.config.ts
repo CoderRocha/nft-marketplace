@@ -2,7 +2,9 @@ import { defineConfig, devices } from '@playwright/test'
 
 const BASE_URL = 'http://localhost:4173'
 
-const unitOnly = process.argv.includes('--project=unit')
+const requestedProjects = process.argv.filter((arg) => arg.startsWith('--project='))
+
+const unitOnly = requestedProjects.length > 0 && requestedProjects.every((arg) => arg === '--project=unit')
 
 export default defineConfig({
   testDir: './e2e',
