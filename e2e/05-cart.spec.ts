@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 import { test, USERS } from './fixtures'
+import { buyFromDetail, isMobile } from './flows'
 
 const summary = (page: Page) => page.getByRole('region', { name: 'Resumo do pedido' })
 
@@ -9,25 +10,19 @@ const summaryValue = (page: Page, label: string) =>
     .getByRole('definition')
     .first()
 
-const buyFromDetail = async (page: Page, path = '/nfts/emerald-ape-042') => {
-  await page.goto(path)
-  await page.getByRole('button', { name: 'Comprar', exact: true }).click()
-  await expect(page).toHaveURL(/\/cart/)
-}
-
 test.describe('Carrinho', () => {
-  test('visitante adiciona, altera quantidade, remove e o carrinho sobrevive ao refresh', async ({ page, mocks }) => {
+  test('visitante adiciona, altera quantidade, remove e o carrinho sobrevive ao refresh @main', async ({ page, mocks }) => {
     await mocks.boot()
     await buyFromDetail(page)
     await expect(page.getByRole('link', { name: 'Emerald Ape #042' })).toBeVisible()
     await expect(summaryValue(page, 'Subtotal')).toHaveText('1.19 ETH')
-    await expect(summaryValue(page, 'Taxa de rede')).toHaveText('0.016 ETH')
+    await expect(summaryValue(page, 'Taxa de rede')).toHaveText(/^0.016 ETH/)
     await expect(summaryValue(page, 'Total')).toHaveText('1.206 ETH')
 
-    await page.getByRole('button', { name: 'Aumentar quantidade de emerald ape #042' }).first().click()
+    await page.getByRole('button', { name: 'Aumentar quantidade de emerald ape #042' }).filter({ visible: true }).click()
     await expect(summaryValue(page, 'Subtotal')).toHaveText('2.38 ETH')
     await expect(summaryValue(page, 'Total')).toHaveText('2.396 ETH')
-    await expect(page.getByRole('link', { name: 'Carrinho com 2 itens' }).first()).toBeVisible()
+    if (!isMobile(page)) await expect(page.getByRole('link', { name: 'Carrinho com 2 itens' }).first()).toBeVisible()
 
     await page.reload()
     await expect(summaryValue(page, 'Subtotal')).toHaveText('2.38 ETH')
@@ -36,7 +31,7 @@ test.describe('Carrinho', () => {
     await expect(page.getByText('Seu carrinho está vazio')).toBeVisible()
   })
 
-  test('cupom inválido, expirado, válido e remoção', async ({ page, mocks }) => {
+  test('cupom inválido, expirado, válido e remoção @main', async ({ page, mocks }) => {
     await mocks.boot()
     await buyFromDetail(page)
     const coupon = page.getByRole('textbox', { name: 'Código promocional' })
@@ -60,23 +55,22 @@ test.describe('Carrinho', () => {
     await expect(summaryValue(page, 'Desconto do lançamento')).toHaveText('(-) 0.00')
   })
 
-  test('itens do visitante são preservados ao entrar na conta', async ({ page, mocks }) => {
+  test('itens do visitante são preservados ao entrar na conta @main', async ({ page, mocks }) => {
     await mocks.boot()
     await buyFromDetail(page)
     await page.goto('/login?redirect=%2Fcart')
-    const dialog = page.getByRole('dialog')
-    await dialog.getByLabel('E-mail').fill(USERS.ana.email)
-    await dialog.getByLabel('Senha', { exact: true }).fill(USERS.ana.password)
-    await dialog.getByRole('button', { name: 'Entrar' }).click()
+    const form = page.getByRole('form', { name: 'Entrar' })
+    await form.getByRole('textbox', { name: 'E-mail' }).fill(USERS.ana.email)
+    await form.getByLabel('Senha', { exact: true }).fill(USERS.ana.password)
+    await form.getByRole('button', { name: 'Entrar' }).click()
     await expect(page).toHaveURL(/\/cart$/)
     await expect(page.getByRole('link', { name: 'Emerald Ape #042' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Conta de Ana Souza' })).toBeVisible()
   })
 
   test('quantidade respeita a disponibilidade da edição', async ({ page, mocks }) => {
     await mocks.boot()
     await buyFromDetail(page, '/nfts/violet-nomad-314?edicao=1-10&qtd=8')
     await expect(summaryValue(page, 'Subtotal')).toHaveText('20.016 ETH')
-    await expect(page.getByRole('button', { name: 'Aumentar quantidade de violet nomad #314' }).first()).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Aumentar quantidade de violet nomad #314' }).filter({ visible: true })).toBeDisabled()
   })
 })

@@ -3,15 +3,16 @@ import { test, USERS, type DemoUser } from './fixtures'
 
 const authDialog = (page: Page) => page.getByRole('dialog')
 
+const signInForm = (page: Page) => page.getByRole('form', { name: 'Entrar' })
+
 const signInThroughForm = async (page: Page, user: DemoUser) => {
-  await authDialog(page).getByLabel('E-mail').fill(USERS[user].email)
-  await authDialog(page).getByLabel('Senha', { exact: true }).fill(USERS[user].password)
-  await authDialog(page).getByRole('button', { name: 'Entrar' }).click()
+  await signInForm(page).getByRole('textbox', { name: 'E-mail' }).fill(USERS[user].email)
+  await signInForm(page).getByLabel('Senha', { exact: true }).fill(USERS[user].password)
+  await signInForm(page).getByRole('button', { name: 'Entrar' }).click()
 }
 
-const signOut = async (page: Page, user: DemoUser) => {
-  await page.getByRole('button', { name: `Conta de ${USERS[user].displayName}` }).click()
-  await page.getByRole('menuitem', { name: 'Sair' }).click()
+const signOut = async (page: Page) => {
+  await page.getByRole('navigation', { name: 'Meu perfil' }).getByRole('button', { name: 'Sair' }).click()
   await expect(page.getByText('Você saiu da sua conta.')).toBeVisible()
 }
 
@@ -40,13 +41,13 @@ test.describe('Conta e sessão', () => {
     await expect(page.getByRole('button', { name: 'Conta de nova.colecionadora' })).toBeVisible()
   })
 
-  test('rota privada leva ao login e volta ao destino; a sessão sobrevive ao refresh', async ({ page, mocks }) => {
+  test('rota privada leva ao login e volta ao destino; a sessão sobrevive ao refresh @main', async ({ page, mocks }) => {
     await mocks.boot('padrao', '/profile/wallets')
     await expect(page).toHaveURL(/\/login\?redirect=/)
-    await authDialog(page).getByLabel('E-mail').fill(USERS.ana.email)
-    await authDialog(page).getByLabel('Senha', { exact: true }).fill('senha-errada')
-    await authDialog(page).getByRole('button', { name: 'Entrar' }).click()
-    await expect(authDialog(page).getByText('E-mail ou senha incorretos')).toBeVisible()
+    await signInForm(page).getByRole('textbox', { name: 'E-mail' }).fill(USERS.ana.email)
+    await signInForm(page).getByLabel('Senha', { exact: true }).fill('senha-errada')
+    await signInForm(page).getByRole('button', { name: 'Entrar' }).click()
+    await expect(signInForm(page).getByText('E-mail ou senha incorretos')).toBeVisible()
 
     await signInThroughForm(page, 'ana')
     await expect(page).toHaveURL(/\/profile\/wallets/)
@@ -62,16 +63,26 @@ test.describe('Conta e sessão', () => {
     await mocks.expireSession()
     await page.getByRole('navigation', { name: 'Meu perfil' }).getByRole('link', { name: 'Carteiras' }).click()
     await expect(page).toHaveURL(/\/login\?.*motivo=expirada/)
-    await expect(authDialog(page).getByText('Sua sessão expirou')).toBeVisible()
+    await expect(page.getByText(/^Sua sessão expirou/)).toBeVisible()
     await signInThroughForm(page, 'ana')
     await expect(page).toHaveURL(/\/profile\/wallets/)
   })
 
-  test('logout e troca de usuário não vazam dados da conta anterior', async ({ page, mocks }) => {
+  test('sessão curta expira quando o relógio avança', async ({ page, mocks }) => {
+    await page.clock.install()
+    await mocks.boot('sessao-expirada')
+    await mocks.loginAs('ana', '/profile')
+    await expect(page.getByRole('heading', { name: 'Perfil do colecionador' })).toBeVisible()
+    await page.clock.fastForward('00:50')
+    await page.getByRole('navigation', { name: 'Meu perfil' }).getByRole('link', { name: 'Carteiras' }).click()
+    await expect(page).toHaveURL(/\/login\?.*motivo=expirada/)
+  })
+
+  test('logout e troca de usuário não vazam dados da conta anterior @main', async ({ page, mocks }) => {
     await mocks.boot()
     await mocks.loginAs('ana', '/profile/favorites')
     await expect(page.getByRole('article').filter({ hasText: 'Sage Nomad #009' })).toBeVisible()
-    await signOut(page, 'ana')
+    await signOut(page)
     await expect(page).toHaveURL('/')
 
     await page.goto('/profile/favorites')
