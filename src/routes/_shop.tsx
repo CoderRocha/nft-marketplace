@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { LogInIcon } from 'lucide-react'
+import { ScenarioPanel } from '@features/dev-scenarios/scenario-panel'
 import { NewsletterForm } from '@features/newsletter/newsletter-form'
 import { ShopLayout } from '@layouts/shop-layout'
 import { buttonVariants } from '@ui/button'
@@ -16,6 +17,7 @@ const ShopRoute = () => {
         </Link>
       }
       newsletter={<NewsletterForm />}
+      devTools={<ScenarioPanel />}
       onSearch={() => void navigate({ to: '/', hash: 'catalogo' })}
     >
       <Outlet />

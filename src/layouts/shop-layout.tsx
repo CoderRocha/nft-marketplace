@@ -10,6 +10,7 @@ type ShopLayoutProps = {
   cartCount: number
   account: ReactNode
   newsletter: ReactNode
+  devTools: ReactNode
   onSearch: () => void
 }
 
@@ -30,7 +31,7 @@ const CartBadge = ({ count }: { count: number }) =>
 
 const cartLabel = (count: number) => (count === 0 ? 'Carrinho vazio' : `Carrinho com ${count} ${count === 1 ? 'item' : 'itens'}`)
 
-const Header = ({ cartCount, account, onSearch }: Omit<ShopLayoutProps, 'children' | 'newsletter'>) => {
+const Header = ({ cartCount, account, onSearch }: Pick<ShopLayoutProps, 'cartCount' | 'account' | 'onSearch'>) => {
   const { pathname } = useLocation()
   const inMarket = MARKET_PATHS.some((path) => pathname.startsWith(path))
   return (
@@ -179,7 +180,7 @@ const FooterColumn = ({ title, children }: { title: string; children: ReactNode 
   </div>
 )
 
-const Footer = ({ newsletter }: Pick<ShopLayoutProps, 'newsletter'>) => (
+const Footer = ({ newsletter, devTools }: Pick<ShopLayoutProps, 'newsletter' | 'devTools'>) => (
   <footer className="mx-auto mt-20 w-full max-w-shop px-4 md:px-6">
     <div className="grid gap-8 bg-card px-6 py-8 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
       {HIGHLIGHTS.map((highlight) => (
@@ -271,17 +272,20 @@ const Footer = ({ newsletter }: Pick<ShopLayoutProps, 'newsletter'>) => (
         </div>
       </div>
     </div>
-    <p className="py-4 text-center text-xs text-foreground/90">© 2026 Kurio. Propriedade digital para todos.</p>
+    <div className="flex flex-col items-center gap-2 py-4">
+      <p className="text-center text-xs text-foreground/90">© 2026 Kurio. Propriedade digital para todos.</p>
+      {devTools}
+    </div>
   </footer>
 )
 
-export const ShopLayout = ({ children, cartCount, account, newsletter, onSearch }: ShopLayoutProps) => (
+export const ShopLayout = ({ children, cartCount, account, newsletter, devTools, onSearch }: ShopLayoutProps) => (
   <div className="flex min-h-dvh flex-col pb-24 md:pb-0">
     <Header cartCount={cartCount} account={account} onSearch={onSearch} />
     <main id="conteudo" className="flex-1">
       {children}
     </main>
-    <Footer newsletter={newsletter} />
+    <Footer newsletter={newsletter} devTools={devTools} />
     <MobileTabBar cartCount={cartCount} onSearch={onSearch} />
   </div>
 )
