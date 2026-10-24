@@ -15,6 +15,7 @@ import { Route as ShopPrivateRouteImport } from './routes/_shop._private'
 import { Route as ShopCartRouteImport } from './routes/_shop.cart'
 import { Route as ShopLoginRouteImport } from './routes/_shop.login'
 import { Route as ShopRegisterRouteImport } from './routes/_shop.register'
+import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
 import { Route as ShopPrivateCheckoutRouteImport } from './routes/_shop._private.checkout'
 import { Route as ShopPrivateProfileRouteImport } from './routes/_shop._private.profile'
 import { Route as ShopNftsNftIdRouteImport } from './routes/_shop.nfts.$nftId'
@@ -49,6 +50,11 @@ const ShopRegisterRoute = ShopRegisterRouteImport.update({
   id: '/register',
   path: '/register',
   getParentRoute: () => ShopRoute,
+} as any)
+const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ShopPrivateCheckoutRoute = ShopPrivateCheckoutRouteImport.update({
   id: '/checkout',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof ShopCartRoute
   '/login': typeof ShopLoginRoute
   '/register': typeof ShopRegisterRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/checkout': typeof ShopPrivateCheckoutRoute
   '/profile': typeof ShopPrivateProfileRouteWithChildren
   '/nfts/$nftId': typeof ShopNftsNftIdRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/cart': typeof ShopCartRoute
   '/login': typeof ShopLoginRoute
   '/register': typeof ShopRegisterRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/checkout': typeof ShopPrivateCheckoutRoute
   '/nfts/$nftId': typeof ShopNftsNftIdRoute
   '/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_shop/cart': typeof ShopCartRoute
   '/_shop/login': typeof ShopLoginRoute
   '/_shop/register': typeof ShopRegisterRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/_shop/': typeof ShopIndexRoute
   '/_shop/_private/checkout': typeof ShopPrivateCheckoutRoute
   '/_shop/_private/profile': typeof ShopPrivateProfileRouteWithChildren
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/login'
     | '/register'
+    | '/orders/$orderId'
     | '/checkout'
     | '/profile'
     | '/nfts/$nftId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/login'
     | '/register'
+    | '/orders/$orderId'
     | '/checkout'
     | '/nfts/$nftId'
     | '/profile/favorites'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_shop/cart'
     | '/_shop/login'
     | '/_shop/register'
+    | '/orders/$orderId'
     | '/_shop/'
     | '/_shop/_private/checkout'
     | '/_shop/_private/profile'
@@ -163,6 +175,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   ShopRoute: typeof ShopRouteWithChildren
+  OrdersOrderIdRoute: typeof OrdersOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/register'
       preLoaderRoute: typeof ShopRegisterRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_shop/_private/checkout': {
       id: '/_shop/_private/checkout'
@@ -305,6 +325,7 @@ const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRouteWithChildren,
+  OrdersOrderIdRoute: OrdersOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

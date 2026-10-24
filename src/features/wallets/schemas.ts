@@ -8,32 +8,32 @@ const isNetwork = (value: string) => NETWORK_IDS.some((network) => network === v
 
 const isProvider = (value: string) => WALLET_PROVIDER_IDS.some((provider) => provider === value)
 
-export const walletFormSchema = v.pipe(
-  v.object({
-    displayName: v.pipe(requiredText(60), v.minLength(2, 'Use pelo menos 2 caracteres.')),
-    nickname: v.pipe(requiredText(40), v.minLength(2, 'Use pelo menos 2 caracteres.')),
-    network: v.pipe(v.string(), v.check(isNetwork, 'Selecione uma rede.')),
-    profileName: v.pipe(requiredText(60), v.minLength(2, 'Use pelo menos 2 caracteres.')),
-    address: v.pipe(v.string(), v.trim(), v.nonEmpty('Informe o endereço da carteira.')),
-    ensOrSecondary: optionalText(80),
-    provider: v.pipe(v.string(), v.check(isProvider, 'Selecione o tipo de carteira.')),
-    referralCode: v.pipe(
-      v.string(),
-      v.trim(),
-      v.nonEmpty('Informe o código de indicação.'),
-      v.regex(REFERRAL_CODE_PATTERN, 'Use de 4 a 12 letras ou números.'),
-    ),
-    email: emailSchema,
-    ensName: ensNameSchema,
-  }),
-  v.forward(
-    v.partialCheck(
-      [['network'], ['address']],
-      (input) => !isNetwork(input.network) || NETWORK_IDS.some((network) => network === input.network && isValidAddress(network, input.address)),
-      'Endereço inválido para a rede selecionada.',
-    ),
-    ['address'],
+export const walletFieldsFormSchema = v.object({
+  displayName: v.pipe(requiredText(60), v.minLength(2, 'Use pelo menos 2 caracteres.')),
+  nickname: v.pipe(requiredText(40), v.minLength(2, 'Use pelo menos 2 caracteres.')),
+  network: v.pipe(v.string(), v.check(isNetwork, 'Selecione uma rede.')),
+  profileName: v.pipe(requiredText(60), v.minLength(2, 'Use pelo menos 2 caracteres.')),
+  address: v.pipe(v.string(), v.trim(), v.nonEmpty('Informe o endereço da carteira.')),
+  ensOrSecondary: optionalText(80),
+  provider: v.pipe(v.string(), v.check(isProvider, 'Selecione o tipo de carteira.')),
+  referralCode: v.pipe(
+    v.string(),
+    v.trim(),
+    v.nonEmpty('Informe o código de indicação.'),
+    v.regex(REFERRAL_CODE_PATTERN, 'Use de 4 a 12 letras ou números.'),
   ),
+  email: emailSchema,
+  ensName: ensNameSchema,
+})
+
+export const INVALID_ADDRESS_MESSAGE = 'Endereço inválido para a rede selecionada.'
+
+export const addressFitsNetwork = (input: { network: string; address: string }) =>
+  !isNetwork(input.network) || NETWORK_IDS.some((network) => network === input.network && isValidAddress(network, input.address))
+
+export const walletFormSchema = v.pipe(
+  walletFieldsFormSchema,
+  v.forward(v.partialCheck([['network'], ['address']], addressFitsNetwork, INVALID_ADDRESS_MESSAGE), ['address']),
 )
 
 export type WalletFormValues = v.InferInput<typeof walletFormSchema>
