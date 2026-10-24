@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { relatedNftsQuery } from '@core/queries'
 import { Carousel } from '@pattern/carousel'
 import { NftCard, NftCardSkeleton } from '@features/catalog/nft-card'
+import { NftCardActions } from '@features/catalog/nft-card-actions'
 
 const ITEM_CLASS_NAME = 'w-[calc(50%-0.5rem)] shrink-0 md:w-[calc(33.333%-0.667rem)] lg:w-[calc(20%-0.8rem)]'
 
@@ -20,7 +21,7 @@ export const RelatedCarousel = ({ nftId, title }: RelatedCarouselProps) => {
       </h2>
       <Carousel label={title}>
         {related.data
-          ? related.data.map((nft) => <NftCard key={nft.id} nft={nft} sizes="(min-width: 1024px) 14rem, 50vw" className={ITEM_CLASS_NAME} />)
+          ? related.data.map((nft) => <NftCard key={nft.id} nft={nft} actions={<NftCardActions nft={nft} />} sizes="(min-width: 1024px) 14rem, 50vw" className={ITEM_CLASS_NAME} />)
           : Array.from({ length: 5 }, (_, index) => <NftCardSkeleton key={index} className={ITEM_CLASS_NAME} />)}
       </Carousel>
     </section>

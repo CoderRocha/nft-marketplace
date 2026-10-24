@@ -1,8 +1,8 @@
 import { cn } from 'cn'
 import { SearchXIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
 import type { NftSummary } from '@contracts/nft'
 import { NftCard, NftCardSkeleton } from '@features/catalog/nft-card'
+import { NftCardActions } from '@features/catalog/nft-card-actions'
 import { Button } from '@ui/button'
 
 const gridClassName = 'grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-6 max-md:[&>*:nth-child(even)]:mt-8'
@@ -10,14 +10,13 @@ const gridClassName = 'grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-
 type NftGridProps = {
   items: NftSummary[]
   updating: boolean
-  renderActions?: (nft: NftSummary) => ReactNode
 }
 
-export const NftGrid = ({ items, updating, renderActions }: NftGridProps) => (
+export const NftGrid = ({ items, updating }: NftGridProps) => (
   <ul aria-busy={updating} className={cn(gridClassName, 'transition-opacity', updating && 'opacity-60')}>
     {items.map((nft) => (
       <li key={nft.id}>
-        <NftCard nft={nft} actions={renderActions?.(nft)} />
+        <NftCard nft={nft} actions={<NftCardActions nft={nft} />} />
       </li>
     ))}
   </ul>

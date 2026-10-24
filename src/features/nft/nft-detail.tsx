@@ -2,9 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useCanGoBack, useRouter } from '@tanstack/react-router'
 import { ChevronLeftIcon, SearchXIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import * as v from 'valibot'
+import { nftSummarySchema } from '@contracts/nft'
 import { hasErrorCode } from '@core/http'
 import { nftDetailQuery } from '@core/queries'
 import { ErrorState } from '@pattern/error-state'
+import { FavoriteButton } from '@features/favorites/favorite-button'
 import { NftDetailsTabs } from '@features/nft/nft-details-tabs'
 import { NftGallery } from '@features/nft/nft-gallery'
 import { NftPurchasePanel, type PurchaseLayout, type PurchaseSelection } from '@features/nft/nft-purchase-panel'
@@ -18,7 +21,6 @@ type NftDetailProps = {
   search: NftSearch
   onSearchChange: (next: Partial<NftSearch>) => void
   renderActions?: (selection: PurchaseSelection, layout: PurchaseLayout) => ReactNode
-  favoriteOverlay?: ReactNode
 }
 
 const Breadcrumb = ({ name }: { name?: string }) => (
@@ -95,8 +97,9 @@ const NftNotFound = () => (
   </div>
 )
 
-export const NftDetail = ({ nftId, search, onSearchChange, renderActions, favoriteOverlay }: NftDetailProps) => {
+export const NftDetail = ({ nftId, search, onSearchChange, renderActions }: NftDetailProps) => {
   const detail = useQuery(nftDetailQuery(nftId))
+  const summary = detail.data && v.parse(nftSummarySchema, detail.data)
 
   if (hasErrorCode(detail.error, 'not_found')) return <NftNotFound />
 
@@ -119,10 +122,24 @@ export const NftDetail = ({ nftId, search, onSearchChange, renderActions, favori
           <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-8">
             <div className="relative">
               <BackButton />
-              <NftGallery name={detail.data.name} images={detail.data.gallery} overlay={favoriteOverlay} />
+              <NftGallery
+                name={detail.data.name}
+                images={detail.data.gallery}
+                overlay={summary && <FavoriteButton nft={summary} variant="overlay" className="absolute top-4 right-4 md:hidden" />}
+              />
             </div>
             <div className="px-4 md:px-0">
-              <NftPurchasePanel nft={detail.data} search={search} onSearchChange={onSearchChange} renderActions={renderActions} />
+              <NftPurchasePanel
+                nft={detail.data}
+                search={search}
+                onSearchChange={onSearchChange}
+                renderActions={(selection, layout) => (
+                  <>
+                    {renderActions?.(selection, layout)}
+                    {layout === 'inline' && summary && <FavoriteButton nft={summary} variant="button" />}
+                  </>
+                )}
+              />
             </div>
           </div>
         )}

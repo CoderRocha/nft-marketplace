@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { SlidersHorizontalIcon, XIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
-import type { NftSummary } from '@contracts/nft'
 import { CATALOG_PAGE_SIZE } from '@core/constants'
 import { nftListQuery } from '@core/queries'
 import { ErrorState } from '@pattern/error-state'
@@ -19,7 +17,6 @@ import { Skeleton } from '@ui/skeleton'
 type CatalogProps = {
   search: CatalogSearch
   onSearchChange: (next: Partial<CatalogSearch>, options?: { replace?: boolean }) => void
-  renderActions?: (nft: NftSummary) => ReactNode
 }
 
 const scrollToCatalog = () => {
@@ -28,7 +25,7 @@ const scrollToCatalog = () => {
 
 const resultsLabel = (total: number) => (total === 1 ? '1 NFT encontrado' : `${total} NFTs encontrados`)
 
-export const Catalog = ({ search, onSearchChange, renderActions }: CatalogProps) => {
+export const Catalog = ({ search, onSearchChange }: CatalogProps) => {
   const list = useQuery(nftListQuery(toListParams(search)))
   const facets = list.data?.facets
   const pageCount = list.data ? Math.ceil(list.data.total / list.data.pageSize) : 0
@@ -55,7 +52,7 @@ export const Catalog = ({ search, onSearchChange, renderActions }: CatalogProps)
         />
       )
     }
-    return <NftGrid items={list.data.items} updating={list.isPlaceholderData && list.isFetching} renderActions={renderActions} />
+    return <NftGrid items={list.data.items} updating={list.isPlaceholderData && list.isFetching} />
   }
 
   return (
