@@ -42,6 +42,8 @@ export type MockControl = {
   fail: (failure: Partial<FailureInput> & Pick<FailureInput, 'method' | 'path' | 'kind'>) => Promise<void>
   loginAs: (user: DemoUser, path?: string) => Promise<void>
   expireSession: () => Promise<void>
+  token: () => Promise<string | undefined>
+  updateNft: (nftId: string, change: { editionId: string; price?: string; available?: number }) => Promise<void>
 }
 
 export const test = base.extend<{ mocks: MockControl }>({
@@ -49,7 +51,7 @@ export const test = base.extend<{ mocks: MockControl }>({
     await use({
       boot: async (scenario = 'padrao', path = '/') => {
         await page.goto(`${path}${path.includes('?') ? '&' : '?'}cenario=${scenario}`)
-        await page.waitForFunction(() => navigator.serviceWorker.controller !== null)
+        await page.locator('html[data-mocks="ready"]').waitFor({ state: 'attached' })
       },
       api: (call) => callApi(page, call),
       reset: async (scenario = 'padrao') => {
@@ -72,9 +74,14 @@ export const test = base.extend<{ mocks: MockControl }>({
           localStorage.setItem(key, token)
         }, [SESSION_TOKEN_KEY, body.token] as const)
         await page.goto(path)
+        await page.locator('html[data-mocks="ready"]').waitFor({ state: 'attached' })
       },
       expireSession: async () => {
         await callApi(page, { method: 'POST', path: '/__mocks/session/expire', token: await readToken(page) })
+      },
+      token: () => readToken(page),
+      updateNft: async (nftId, change) => {
+        await callApi(page, { method: 'POST', path: `/__mocks/nfts/${nftId}/update`, body: change })
       },
     })
   },
