@@ -16,6 +16,8 @@ type ShopLayoutProps = {
 
 const MARKET_PATHS = ['/nfts', '/cart', '/checkout']
 
+const OWN_MOBILE_BAR_PATHS = ['/nfts/', '/cart', '/checkout']
+
 const navItemClassName =
   'relative flex h-full items-center text-[0.9375rem] text-foreground transition-colors hover:text-primary aria-[current=page]:font-semibold aria-[current=page]:text-primary aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:bottom-0 aria-[current=page]:after:h-0.5 aria-[current=page]:after:bg-primary'
 
@@ -43,12 +45,18 @@ const Header = ({ cartCount, account, onSearch }: Pick<ShopLayoutProps, 'cartCou
         <nav aria-label="Principal" className="h-full">
           <ul className="flex h-full items-center gap-10 lg:gap-14">
             <li className="h-full">
-              <Link to="/" aria-current={pathname === '/' ? 'page' : undefined} className={navItemClassName}>
+              <Link to="/" activeOptions={{ exact: true, includeHash: true }} className={navItemClassName}>
                 Início
               </Link>
             </li>
             <li className="h-full">
-              <Link to="/" hash="catalogo" aria-current={inMarket ? 'page' : undefined} className={navItemClassName}>
+              <Link
+                to="/"
+                hash="catalogo"
+                activeOptions={{ includeHash: true }}
+                aria-current={inMarket ? 'page' : undefined}
+                className={navItemClassName}
+              >
                 Mercado
               </Link>
             </li>
@@ -81,6 +89,7 @@ const tabClassName =
 const MobileTabBar = ({ cartCount, onSearch }: Pick<ShopLayoutProps, 'cartCount' | 'onSearch'>) => {
   const { pathname } = useLocation()
   const current = (match: boolean) => (match ? 'page' : undefined)
+  if (OWN_MOBILE_BAR_PATHS.some((path) => pathname.startsWith(path))) return null
   return (
     <nav aria-label="Navegação inferior" className="fixed inset-x-0 bottom-0 z-40 md:hidden">
       <ul className="mx-auto flex h-18 max-w-md items-center justify-around rounded-t-3xl bg-card px-4 pb-[env(safe-area-inset-bottom)]">
