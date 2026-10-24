@@ -1,7 +1,8 @@
 import { MOCKS_ENABLED } from '@core/constants'
 
 const startMocks = async () => {
-  const { worker } = await import('@mocks/browser')
+  const { worker, applyScenarioFromUrl } = await import('@mocks/browser')
+  applyScenarioFromUrl(window.location.search)
   await worker.start({ onUnhandledFrame: 'bypass', quiet: !import.meta.env.DEV })
 }
 
