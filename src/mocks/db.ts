@@ -1,6 +1,8 @@
 import type { FailureInput, ScenarioId } from '@contracts/mocks'
+import type { Wallets } from '@contracts/wallet'
 import { seedNfts, type NftRecord } from '@mocks/fixtures/nfts'
 import { seedUsers, type UserRecord } from '@mocks/fixtures/users'
+import { seedFavorites, seedWallets } from '@mocks/fixtures/wallets'
 
 export type SessionRecord = {
   token: string
@@ -17,9 +19,11 @@ export type MockDb = {
   users: UserRecord[]
   sessions: SessionRecord[]
   nfts: NftRecord[]
+  favorites: Record<string, string[]>
+  wallets: Record<string, Wallets>
 }
 
-const STORAGE_KEY = 'kurio-mocks:v1'
+const STORAGE_KEY = 'kurio-mocks:v2'
 
 const seed = (): MockDb => ({
   scenario: 'padrao',
@@ -28,6 +32,8 @@ const seed = (): MockDb => ({
   users: seedUsers(),
   sessions: [],
   nfts: seedNfts(),
+  favorites: seedFavorites(),
+  wallets: seedWallets(),
 })
 
 const isMockDb = (value: unknown): value is MockDb =>
@@ -37,7 +43,9 @@ const isMockDb = (value: unknown): value is MockDb =>
   'users' in value &&
   Array.isArray(value.users) &&
   'nfts' in value &&
-  Array.isArray(value.nfts)
+  Array.isArray(value.nfts) &&
+  'favorites' in value &&
+  'wallets' in value
 
 const load = (): MockDb => {
   try {
