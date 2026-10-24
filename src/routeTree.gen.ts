@@ -9,50 +9,207 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopRouteImport } from './routes/_shop'
+import { Route as ShopIndexRouteImport } from './routes/_shop.index'
+import { Route as ShopPrivateRouteImport } from './routes/_shop._private'
+import { Route as ShopCartRouteImport } from './routes/_shop.cart'
+import { Route as ShopLoginRouteImport } from './routes/_shop.login'
+import { Route as ShopPrivateProfileRouteImport } from './routes/_shop._private.profile'
+import { Route as ShopPrivateProfileIndexRouteImport } from './routes/_shop._private.profile.index'
+import { Route as ShopPrivateProfileFavoritesRouteImport } from './routes/_shop._private.profile.favorites'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ShopRoute = ShopRouteImport.update({
+  id: '/_shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPrivateRoute = ShopPrivateRouteImport.update({
+  id: '/_private',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopCartRoute = ShopCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopLoginRoute = ShopLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPrivateProfileRoute = ShopPrivateProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ShopPrivateRoute,
+} as any)
+const ShopPrivateProfileIndexRoute = ShopPrivateProfileIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopPrivateProfileRoute,
+} as any)
+const ShopPrivateProfileFavoritesRoute =
+  ShopPrivateProfileFavoritesRouteImport.update({
+    id: '/favorites',
+    path: '/favorites',
+    getParentRoute: () => ShopPrivateProfileRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof ShopIndexRoute
+  '/cart': typeof ShopCartRoute
+  '/login': typeof ShopLoginRoute
+  '/profile': typeof ShopPrivateProfileRouteWithChildren
+  '/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
+  '/profile/': typeof ShopPrivateProfileIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof ShopIndexRoute
+  '/cart': typeof ShopCartRoute
+  '/login': typeof ShopLoginRoute
+  '/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
+  '/profile': typeof ShopPrivateProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_shop': typeof ShopRouteWithChildren
+  '/_shop/_private': typeof ShopPrivateRouteWithChildren
+  '/_shop/cart': typeof ShopCartRoute
+  '/_shop/login': typeof ShopLoginRoute
+  '/_shop/': typeof ShopIndexRoute
+  '/_shop/_private/profile': typeof ShopPrivateProfileRouteWithChildren
+  '/_shop/_private/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
+  '/_shop/_private/profile/': typeof ShopPrivateProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/cart' | '/login' | '/profile' | '/profile/favorites' | '/profile/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/cart' | '/login' | '/profile/favorites' | '/profile'
+  id:
+    | '__root__'
+    | '/_shop'
+    | '/_shop/_private'
+    | '/_shop/cart'
+    | '/_shop/login'
+    | '/_shop/'
+    | '/_shop/_private/profile'
+    | '/_shop/_private/profile/favorites'
+    | '/_shop/_private/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  ShopRoute: typeof ShopRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_shop': {
+      id: '/_shop'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_shop/': {
+      id: '/_shop/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/_shop/_private': {
+      id: '/_shop/_private'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShopPrivateRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/_shop/cart': {
+      id: '/_shop/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof ShopCartRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/_shop/login': {
+      id: '/_shop/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof ShopLoginRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/_shop/_private/profile': {
+      id: '/_shop/_private/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ShopPrivateProfileRouteImport
+      parentRoute: typeof ShopPrivateRoute
+    }
+    '/_shop/_private/profile/': {
+      id: '/_shop/_private/profile/'
+      path: '/'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ShopPrivateProfileIndexRouteImport
+      parentRoute: typeof ShopPrivateProfileRoute
+    }
+    '/_shop/_private/profile/favorites': {
+      id: '/_shop/_private/profile/favorites'
+      path: '/favorites'
+      fullPath: '/profile/favorites'
+      preLoaderRoute: typeof ShopPrivateProfileFavoritesRouteImport
+      parentRoute: typeof ShopPrivateProfileRoute
     }
   }
 }
 
+interface ShopPrivateProfileRouteChildren {
+  ShopPrivateProfileFavoritesRoute: typeof ShopPrivateProfileFavoritesRoute
+  ShopPrivateProfileIndexRoute: typeof ShopPrivateProfileIndexRoute
+}
+
+const ShopPrivateProfileRouteChildren: ShopPrivateProfileRouteChildren = {
+  ShopPrivateProfileFavoritesRoute: ShopPrivateProfileFavoritesRoute,
+  ShopPrivateProfileIndexRoute: ShopPrivateProfileIndexRoute,
+}
+
+const ShopPrivateProfileRouteWithChildren =
+  ShopPrivateProfileRoute._addFileChildren(ShopPrivateProfileRouteChildren)
+
+interface ShopPrivateRouteChildren {
+  ShopPrivateProfileRoute: typeof ShopPrivateProfileRouteWithChildren
+}
+
+const ShopPrivateRouteChildren: ShopPrivateRouteChildren = {
+  ShopPrivateProfileRoute: ShopPrivateProfileRouteWithChildren,
+}
+
+const ShopPrivateRouteWithChildren = ShopPrivateRoute._addFileChildren(
+  ShopPrivateRouteChildren,
+)
+
+interface ShopRouteChildren {
+  ShopPrivateRoute: typeof ShopPrivateRouteWithChildren
+  ShopCartRoute: typeof ShopCartRoute
+  ShopLoginRoute: typeof ShopLoginRoute
+  ShopIndexRoute: typeof ShopIndexRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopPrivateRoute: ShopPrivateRouteWithChildren,
+  ShopCartRoute: ShopCartRoute,
+  ShopLoginRoute: ShopLoginRoute,
+  ShopIndexRoute: ShopIndexRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  ShopRoute: ShopRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
