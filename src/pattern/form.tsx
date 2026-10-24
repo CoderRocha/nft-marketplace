@@ -1,5 +1,5 @@
-import { CircleAlertIcon } from 'lucide-react'
-import { useId, type ReactNode } from 'react'
+import { CircleAlertIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
+import { useId, useState, type ReactNode } from 'react'
 import { Alert, AlertTitle } from '@ui/alert'
 import { Button } from '@ui/button'
 import { Checkbox } from '@ui/checkbox'
@@ -27,16 +27,18 @@ type ControlProps = {
   id: string
   'aria-invalid': boolean
   'aria-describedby': string | undefined
+  'aria-required': boolean | undefined
 }
 
 type FieldShellProps = {
   label: string
   hideLabel?: boolean | undefined
+  required?: boolean | undefined
   description?: string | undefined
   children: (control: ControlProps) => ReactNode
 }
 
-const FieldShell = ({ label, hideLabel, description, children }: FieldShellProps) => {
+const FieldShell = ({ label, hideLabel, required, description, children }: FieldShellProps) => {
   const field = useFieldContext<unknown>()
   const id = useId()
   const [error] = toErrorMessages(field.state.meta.errors)
@@ -46,8 +48,18 @@ const FieldShell = ({ label, hideLabel, description, children }: FieldShellProps
     <Field data-invalid={error !== undefined}>
       <FieldLabel htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>
         {label}
+        {required && (
+          <span aria-hidden="true" className="-ml-1.5 text-primary">
+            *
+          </span>
+        )}
       </FieldLabel>
-      {children({ id, 'aria-invalid': error !== undefined, 'aria-describedby': describedBy || undefined })}
+      {children({
+        id,
+        'aria-invalid': error !== undefined,
+        'aria-describedby': describedBy || undefined,
+        'aria-required': required,
+      })}
       {description && <FieldDescription id={`${id}-description`}>{description}</FieldDescription>}
       {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
     </Field>
@@ -57,28 +69,82 @@ const FieldShell = ({ label, hideLabel, description, children }: FieldShellProps
 type TextFieldProps = {
   label: string
   hideLabel?: boolean
+  required?: boolean
   description?: string
-  type?: 'text' | 'email' | 'password' | 'search' | 'url'
+  prefix?: string
+  type?: 'text' | 'email' | 'search' | 'url'
   placeholder?: string
   autoComplete?: string
 }
 
-export const TextField = ({ label, hideLabel, description, type = 'text', ...props }: TextFieldProps) => {
+export const TextField = ({ label, hideLabel, required, description, prefix, type = 'text', ...props }: TextFieldProps) => {
   const field = useFieldContext<string>()
   return (
-    <FieldShell label={label} hideLabel={hideLabel} description={description}>
+    <FieldShell label={label} hideLabel={hideLabel} required={required} description={description}>
       {(control) => (
-        <Input
-          {...control}
-          {...props}
-          type={type}
-          name={field.name}
-          value={field.state.value}
-          onChange={(event) => {
-            field.handleChange(event.target.value)
-          }}
-          onBlur={field.handleBlur}
-        />
+        <div className="flex gap-2">
+          {prefix && (
+            <span aria-hidden="true" className="flex h-10 shrink-0 items-center rounded-md border border-input bg-field px-3 text-sm">
+              {prefix}
+            </span>
+          )}
+          <Input
+            {...control}
+            {...props}
+            type={type}
+            name={field.name}
+            value={field.state.value}
+            onChange={(event) => {
+              field.handleChange(event.target.value)
+            }}
+            onBlur={field.handleBlur}
+          />
+        </div>
+      )}
+    </FieldShell>
+  )
+}
+
+type PasswordFieldProps = {
+  label: string
+  hideLabel?: boolean
+  required?: boolean
+  description?: string
+  placeholder?: string
+  autoComplete: 'current-password' | 'new-password'
+}
+
+export const PasswordField = ({ label, hideLabel, required, description, ...props }: PasswordFieldProps) => {
+  const field = useFieldContext<string>()
+  const [visible, setVisible] = useState(false)
+  return (
+    <FieldShell label={label} hideLabel={hideLabel} required={required} description={description}>
+      {(control) => (
+        <div className="relative">
+          <Input
+            {...control}
+            {...props}
+            type={visible ? 'text' : 'password'}
+            name={field.name}
+            value={field.state.value}
+            onChange={(event) => {
+              field.handleChange(event.target.value)
+            }}
+            onBlur={field.handleBlur}
+            className="pr-11"
+          />
+          <button
+            type="button"
+            aria-label={visible ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`}
+            aria-pressed={visible}
+            onClick={() => {
+              setVisible((current) => !current)
+            }}
+            className="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          >
+            {visible ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
+          </button>
+        </div>
       )}
     </FieldShell>
   )
@@ -115,15 +181,16 @@ export const NumberField = ({ label, description, ...props }: NumberFieldProps) 
 
 type TextareaFieldProps = {
   label: string
+  required?: boolean
   description?: string
   rows?: number
   placeholder?: string
 }
 
-export const TextareaField = ({ label, description, ...props }: TextareaFieldProps) => {
+export const TextareaField = ({ label, required, description, ...props }: TextareaFieldProps) => {
   const field = useFieldContext<string>()
   return (
-    <FieldShell label={label} description={description}>
+    <FieldShell label={label} required={required} description={description}>
       {(control) => (
         <Textarea
           {...control}
@@ -142,20 +209,21 @@ export const TextareaField = ({ label, description, ...props }: TextareaFieldPro
 
 type SelectFieldProps = {
   label: string
+  required?: boolean
   description?: string
   options: readonly FieldOption[]
   placeholder?: string
 }
 
-export const SelectField = ({ label, description, options, placeholder }: SelectFieldProps) => {
+export const SelectField = ({ label, required, description, options, placeholder }: SelectFieldProps) => {
   const field = useFieldContext<string>()
   return (
-    <FieldShell label={label} description={description}>
+    <FieldShell label={label} required={required} description={description}>
       {(control) => (
         <Select
           items={options}
           name={field.name}
-          value={field.state.value}
+          value={field.state.value || null}
           onValueChange={(value) => {
             if (value !== null) field.handleChange(value)
           }}

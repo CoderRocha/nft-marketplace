@@ -44,6 +44,7 @@
   --color-input: var(--input);
   --color-field: var(--field);
   --color-band: var(--band);
+  --color-facebook: var(--facebook);
   --color-shimmer: var(--shimmer);
   --color-ring: var(--ring);
   --radius-sm: calc(var(--radius) * 0.6);
@@ -79,6 +80,7 @@
   --input: #442c1b;
   --field: #19100c;
   --band: #38220f;
+  --facebook: #1877f2;
   --shimmer: #3a2419;
   --ring: #d28a4c;
 }

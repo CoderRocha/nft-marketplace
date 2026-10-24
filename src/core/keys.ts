@@ -12,4 +12,14 @@ const nfts = createQueryKeys('nfts', {
   related: (id: string) => [id],
 })
 
-export const keys = mergeQueryKeys(mocks, nfts)
+const session = createQueryKeys('session', {
+  current: null,
+})
+
+const me = createQueryKeys('me', {
+  profile: (userId: string) => [userId],
+  favorites: (userId: string) => [userId],
+  wallets: (userId: string) => [userId],
+})
+
+export const keys = mergeQueryKeys(mocks, nfts, session, me)
