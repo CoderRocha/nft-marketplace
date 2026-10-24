@@ -1,6 +1,7 @@
 import type { EditionId } from '@contracts/nft'
 import { mutate } from '@mocks/db'
 import type { NftRecord } from '@mocks/fixtures/nfts'
+import { publishNftUpdated } from '@mocks/realtime'
 
 const DEFAULT_EDITION_PREFERENCE: EditionId[] = ['1-50', 'aberta', '1-10', '1-1']
 
@@ -19,8 +20,8 @@ const refreshDerived = (nft: NftRecord) => {
   nft.version += 1
 }
 
-export const updateNftEdition = (nftId: string, editionId: EditionId, change: EditionChange) =>
-  mutate((current) => {
+export const updateNftEdition = (nftId: string, editionId: EditionId, change: EditionChange) => {
+  const updated = mutate((current) => {
     const nft = current.nfts.find((candidate) => candidate.id === nftId)
     const edition = nft?.editions.find((candidate) => candidate.id === editionId)
     if (!nft || !edition) return undefined
@@ -29,3 +30,6 @@ export const updateNftEdition = (nftId: string, editionId: EditionId, change: Ed
     refreshDerived(nft)
     return nft
   })
+  if (updated) publishNftUpdated(updated)
+  return updated
+}

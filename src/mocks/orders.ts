@@ -5,6 +5,7 @@ import { multiplyEth } from '@core/money'
 import { db, mutate, type ConnectionRecord, type OrderRecord } from '@mocks/db'
 import { findEdition, findNftRecord, readCart, userCartKey, writeCart } from '@mocks/cart'
 import { updateNftEdition } from '@mocks/nft-updates'
+import { publishOrderUpdated } from '@mocks/realtime'
 
 export const SETTLE_DELAY_MS = 2500
 
@@ -91,6 +92,7 @@ const decline = (order: OrderRecord, reason: string) => {
     order.version += 1
     order.updatedAt = new Date().toISOString()
   })
+  publishOrderUpdated(order)
 }
 
 const confirm = (order: OrderRecord) => {
@@ -118,6 +120,7 @@ const confirm = (order: OrderRecord) => {
     order.version += 1
     order.updatedAt = new Date().toISOString()
   })
+  publishOrderUpdated(order)
 }
 
 export const settleOrder = (order: OrderRecord) => {

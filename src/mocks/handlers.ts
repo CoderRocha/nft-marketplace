@@ -8,6 +8,7 @@ import { nftHandlers } from '@mocks/handlers/nfts'
 import { orderHandlers } from '@mocks/handlers/orders'
 import { profileHandlers } from '@mocks/handlers/profile'
 import { walletHandlers } from '@mocks/handlers/wallets'
+import { realtimeHandler } from '@mocks/realtime'
 
 export const handlers: AnyHandler[] = [
   ...controlHandlers,
@@ -19,4 +20,5 @@ export const handlers: AnyHandler[] = [
   ...profileHandlers,
   ...walletHandlers,
   ...newsletterHandlers,
+  realtimeHandler,
 ]

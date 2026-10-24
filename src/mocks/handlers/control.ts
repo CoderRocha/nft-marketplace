@@ -5,6 +5,7 @@ import { db, mutate, resetDb } from '@mocks/db'
 import { bearerToken } from '@mocks/auth'
 import { apiUrl, notFoundProblem, readJson, validationProblem } from '@mocks/network'
 import { updateNftEdition } from '@mocks/nft-updates'
+import { dropConnections, replayRecentEvents } from '@mocks/realtime'
 import { applyScenario } from '@mocks/scenarios'
 
 const resetInputSchema = v.object({ scenario: v.optional(scenarioInputSchema.entries.scenario, 'padrao') })
@@ -55,4 +56,11 @@ export const controlHandlers = [
     const nft = updateNftEdition(params.nftId, editionId, change)
     return nft ? HttpResponse.json({ id: nft.id, version: nft.version }) : notFoundProblem('NFT ou edição inexistente.')
   }),
+
+  http.post(apiUrl('/__mocks/realtime/drop'), () => {
+    dropConnections()
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.post(apiUrl('/__mocks/realtime/replay'), () => HttpResponse.json({ delivered: replayRecentEvents() })),
 ]
