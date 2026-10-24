@@ -18,10 +18,12 @@ const scenarioFailures = (scenario: ScenarioId): FailureRule[] => {
   return CATALOG_READS.map((path) => ({ method: 'get', path, kind, remaining: FAILURES_BEFORE_RECOVERY }))
 }
 
-export const latencyFor = (scenario: ScenarioId, method: string, path: string, call: number) => {
+const outOfOrderLatency = (url: URL) => Math.max(200, 2400 - (url.searchParams.get('q') ?? '').length * 400)
+
+export const latencyFor = (scenario: ScenarioId, method: string, path: string, url: URL, call: number) => {
   if (scenario === 'lento') return 2500
   if (scenario === 'latencia-variavel') return 200 + Math.floor(createRandom(9000 + call)() * 2000)
-  if (scenario === 'fora-de-ordem' && method === 'get' && path === '/nfts') return call % 2 === 1 ? 1800 : 200
+  if (scenario === 'fora-de-ordem' && method === 'get' && path === '/nfts') return outOfOrderLatency(url)
   return 150
 }
 

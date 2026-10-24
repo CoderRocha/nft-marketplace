@@ -5,7 +5,7 @@ export const SCENARIOS = [
   { id: 'vazio', label: 'Catálogo vazio', description: 'A busca de NFTs não retorna resultados.' },
   { id: 'lento', label: 'Rede lenta', description: 'Todas as respostas levam cerca de 2,5 segundos.' },
   { id: 'latencia-variavel', label: 'Latência variável', description: 'Respostas entre 0,2 e 2,2 segundos, em sequência reproduzível.' },
-  { id: 'fora-de-ordem', label: 'Respostas fora de ordem', description: 'Buscas antigas do catálogo respondem depois das mais novas.' },
+  { id: 'fora-de-ordem', label: 'Respostas fora de ordem', description: 'Buscas mais curtas (as mais antigas ao digitar) respondem depois das mais longas.' },
   { id: 'offline', label: 'Sem conexão', description: 'As três primeiras chamadas ao catálogo falham por rede, depois recupera.' },
   { id: 'erro-500', label: 'Erro 500', description: 'As três primeiras chamadas ao catálogo retornam 500, depois recupera.' },
   { id: 'erro-503', label: 'Erro 503', description: 'As três primeiras chamadas ao catálogo retornam 503 com Retry-After.' },

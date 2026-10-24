@@ -55,9 +55,9 @@ const injectedFailure = (rule: FailureRule) => {
 
 type Method = FailureRule['method']
 
-const interfere = async (method: Method, path: string) => {
+const interfere = async (method: Method, path: string, request: Request) => {
   const call = mutate((current) => (current.callCount += 1))
-  await delay(latencyFor(db().scenario, method, path, call))
+  await delay(latencyFor(db().scenario, method, path, new URL(request.url), call))
   const rule = db().failures.find((candidate) => candidate.method === method && candidate.path === path && candidate.remaining > 0)
   if (!rule) return undefined
   mutate(() => {
@@ -70,7 +70,7 @@ export const endpoint = <Params extends PathParams<keyof Params> = PathParams>(
   method: Method,
   path: string,
   resolver: HttpResponseResolver<Params>,
-) => http[method]<Params, DefaultBodyType, DefaultBodyType>(apiUrl(path), async (info) => (await interfere(method, path)) ?? resolver(info))
+) => http[method]<Params, DefaultBodyType, DefaultBodyType>(apiUrl(path), async (info) => (await interfere(method, path, info.request)) ?? resolver(info))
 
 export const readJson = async (request: Request): Promise<unknown> => {
   try {
