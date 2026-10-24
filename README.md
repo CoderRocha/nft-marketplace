@@ -1,183 +1,219 @@
-Welcome to your new TanStack Start app!
+# Kurio - Marketplace de NFTs
 
-# Getting Started
+Marketplace de NFTs com descoberta, compra e conta do colecionador, construído sobre o layout "Kurio" do Figma. Toda a API (REST e Socket.IO) é simulada no navegador com MSW, então o projeto roda a partir de um checkout limpo, sem backend.
 
-To run this application:
+Decisões de arquitetura, contratos, política de cache, sessão, carrinho, reconciliação em tempo real, limitações e desvios do Figma estão em [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Stack
+
+| Responsabilidade | Tecnologia |
+| --- | --- |
+| Interface | React 19 + TypeScript 6 (strict) |
+| Build | Vite 8 |
+| Roteamento | TanStack Router (rotas por arquivo, search params validados, guards) |
+| Estado remoto | TanStack Query |
+| Formulários | TanStack Form + Valibot |
+| Cliente HTTP | Axios |
+| Tempo real | socket.io-client |
+| Estilo e componentes | Tailwind CSS 4 + shadcn/ui (base-nova sobre Base UI) |
+| Mocks | MSW 3 + @mswjs/socket.io-binding |
+| Testes E2E, visuais e de acessibilidade | Playwright + @axe-core/playwright |
+| Auditoria | Lighthouse CI |
+
+## Requisitos
+
+- Node.js 22 ou superior e npm 11.
+- Google Chrome instalado (usado pelo Lighthouse CI).
+- Chromium do Playwright para os testes (`npx playwright install chromium`).
+
+## Setup
 
 ```bash
-npm install
+npm ci
+npx playwright install chromium
 npm run dev
 ```
 
-# Building For Production
+A aplicação abre em `http://localhost:3000`, já com os mocks ligados.
 
-To build this application for production:
+## Variáveis de ambiente
+
+Os arquivos `.env.development` (usado por `npm run dev`) e `.env.demo` (usado por `npm run build:demo`) são versionados e já ligam os mocks. Não é preciso criar `.env` para rodar o projeto. O `.env.example` documenta as mesmas variáveis.
+
+| Variável | Padrão | Descrição |
+| --- | --- | --- |
+| `VITE_API_URL` | `/api` | Base das chamadas REST feitas pelo Axios. |
+| `VITE_WS_URL` | vazio | Origem do Socket.IO. Vazio usa a própria origem da página. |
+| `VITE_MOCKS` | `true` | Liga o MSW (REST e Socket.IO) no navegador. Com `false`, o app espera uma API real. |
+
+## Comandos
+
+| Comando | O que faz |
+| --- | --- |
+| `npm run dev` | Servidor de desenvolvimento com mocks em `http://localhost:3000`. |
+| `npm run build:demo` | Build otimizado com mocks (o mesmo usado nos testes, no Lighthouse e no deploy). |
+| `npm run build` | Build otimizado sem mocks, para uso com uma API real. |
+| `npm run preview` | Serve o último build em `http://127.0.0.1:4173`. |
+| `npm run typecheck` | Verificação de tipos (`tsc --noEmit`). |
+| `npm run lint` | ESLint com regras de camadas (`eslint-plugin-boundaries`). |
+| `npm run test:e2e` | Todos os testes Playwright (gera o build demo e sobe o preview sozinho). |
+| `npm run test:unit` | Só os testes unitários, sem navegador. |
+| `npm run test:visual:update` | Regenera os baselines de regressão visual. |
+| `npm run lighthouse` | Build demo + auditoria mobile e desktop + resumo em `lighthouse/RESULTS.md`. |
+
+## Credenciais fictícias
+
+Todos os usuários usam a senha `Senha@123`. As senhas são guardadas no mock apenas como hash SHA-256 com salt.
+
+| Usuário | E-mail | Observação |
+| --- | --- | --- |
+| Ana Souza | `ana@kurio.dev` | Carteiras Principal (Ethereum, MetaMask) e Reserva (Polygon, Coinbase), um NFT na lista de interesse. |
+| Bruno Lima | `bruno@kurio.dev` | Só carteira principal, lista de interesse diferente da Ana (útil para testar troca de usuário). |
+| Conta existente | `ocupado@kurio.dev` | Use este e-mail no cadastro para ver o conflito de conta. |
+
+Cupons: `KURIO10` aplica 10% de desconto; `EXPIRADO` retorna cupom expirado; qualquer outro código retorna cupom inválido.
+
+## Cenários dos mocks
+
+O estado do mock (catálogo, usuários, sessões, favoritos, carteiras, carrinhos, pedidos) fica em memória e é espelhado no `localStorage` (`kurio-mocks:v4`), então sobrevive a refresh. O cenário ativo também fica salvo.
+
+| Cenário | Comportamento |
+| --- | --- |
+| `padrao` | Latência de 150 ms e todos os serviços respondendo. |
+| `vazio` | A busca de NFTs não retorna resultados e não há destaques. |
+| `lento` | Todas as respostas levam cerca de 2,5 s (bom para ver os skeletons). |
+| `latencia-variavel` | Respostas entre 0,2 e 2,2 s, em sequência reproduzível. |
+| `fora-de-ordem` | Buscas mais curtas respondem depois das mais longas (simula resposta antiga chegando por último). |
+| `offline` | As três primeiras chamadas ao catálogo falham por rede, depois recupera. |
+| `erro-500` | As três primeiras chamadas ao catálogo retornam 500, depois recupera. |
+| `erro-503` | As três primeiras chamadas ao catálogo retornam 503 com `Retry-After`, depois recupera. |
+| `sessao-expirada` | Novas sessões expiram 45 s após o login. |
+| `preco-alterado-no-checkout` | Ao confirmar o pedido, o preço do primeiro item do carrinho sobe 0,05 ETH. |
+| `esgotado-no-checkout` | Ao confirmar o pedido, a edição do primeiro item do carrinho esgota. |
+| `timeout-pedido` | O pedido é criado, mas a primeira resposta chega depois do timeout do cliente. |
+| `pagamento-recusado` | A rede recusa o pagamento depois que o pedido é criado. |
+| `carteira-recusada` | A primeira tentativa de conectar a carteira é recusada. |
+
+Nos cenários de falha do catálogo, o mock falha três vezes de propósito: o TanStack Query faz a chamada original mais duas tentativas, a interface mostra o erro e o botão "Tentar novamente" recupera.
+
+### Como selecionar e restaurar
+
+- **Pela interface:** link "Cenários de teste" no rodapé (só aparece com mocks ligados). Escolha o cenário e use "Aplicar e recarregar". "Restaurar dados e recarregar" volta o banco ao seed original e aplica o cenário escolhido.
+- **Pela URL:** abra qualquer página com `?cenario=<nome>`, por exemplo `http://localhost:3000/?cenario=erro-503`.
+- **Pela API de controle** (só existe no mock, responde sem latência):
+  - `PUT /api/__mocks/scenario` com `{ "scenario": "lento" }`
+  - `POST /api/__mocks/reset` com `{ "scenario": "padrao" }`
+  - `POST /api/__mocks/failures` com `{ "method": "put", "path": "/me/favorites/:nftId", "kind": 500, "times": 1 }` injeta falhas pontuais em qualquer rota.
+- Limpar os dados do site no navegador também restaura o seed.
+
+## Reproduzindo os fluxos de falha
+
+As chamadas `fetch` abaixo podem ser coladas no console do navegador com a aplicação aberta (o MSW intercepta).
+
+| Fluxo | Como reproduzir |
+| --- | --- |
+| Catálogo com falha e recuperação | Cenário `erro-503`, `erro-500` ou `offline`; abra o Início e clique em "Tentar novamente" quando o erro aparecer. |
+| Skeletons | Cenário `lento`; abra Início, detalhe ou carrinho. |
+| Resposta fora de ordem | Cenário `fora-de-ordem`; busque "gol" e logo depois "golden signal" pelo ícone de busca. O resultado final é sempre o da última busca. |
+| Catálogo vazio | Cenário `vazio`. |
+| Conflito de cadastro | Em "Criar conta", use `ocupado@kurio.dev`. |
+| Sessão expirada | Entre como Ana, abra o perfil e rode `fetch('/api/__mocks/session/expire', { method: 'POST' })`; navegue para "Carteiras". Ou use o cenário `sessao-expirada` e espere 45 s. |
+| Favorito com falha e rollback | Entre como Ana, rode `fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'put', path: '/me/favorites/:nftId', kind: 500 }) })` e clique em "Favoritar" num NFT. |
+| Cupom inválido ou expirado | No carrinho, aplique `NAOEXISTE` ou `EXPIRADO`. |
+| Preço alterado durante o checkout | Cenário `preco-alterado-no-checkout`; faça uma compra até "Confirmar e pagar". O diálogo mostra a mudança e exige "Aceitar novos valores". |
+| Edição esgotada durante o checkout | Cenário `esgotado-no-checkout`; mesma sequência. O pagamento é bloqueado e o diálogo leva ao carrinho. |
+| Timeout com recuperação por idempotência | Cenário `timeout-pedido`; confirme o pagamento. Após cerca de 8 s o cliente reenvia com a mesma `Idempotency-Key` e recebe o mesmo pedido. |
+| Pagamento recusado | Cenário `pagamento-recusado`; o pedido termina recusado e os itens continuam no carrinho. |
+| Carteira recusada | Cenário `carteira-recusada`; a primeira conexão é recusada, a segunda funciona. |
+| Preço ou estoque alterado em tempo real | Com um item no carrinho, rode `fetch('/api/__mocks/nfts/emerald-ape-042/update', { method: 'POST', body: JSON.stringify({ editionId: '1-50', price: '1.5' }) })`. Use `available: 0` para esgotar. |
+| Eventos duplicados e antigos | Depois de duas alterações de preço, rode `fetch('/api/__mocks/realtime/replay', { method: 'POST' })`. O mock reenvia o último evento duas vezes e uma versão antiga. |
+| Queda da conexão em tempo real | Rode `fetch('/api/__mocks/realtime/drop', { method: 'POST' })`. O cliente reconecta e reconcilia com a API. |
+| Pedido pendente após refresh | Confirme um pagamento e recarregue a página enquanto aparece "Aguardando confirmação na rede". O pedido é retomado sem criar outra compra. |
+
+## Testes
+
+Os testes ficam em `e2e/` e rodam contra o build demo (`npm run build:demo` + `npm run preview`), que o Playwright sobe e derruba sozinho.
 
 ```bash
-npm run build
+npm run test:e2e
+npx playwright show-report
 ```
 
-## Styling
+| Projeto | Viewport | O que roda |
+| --- | --- | --- |
+| `unit` | sem navegador | Dinheiro em wei, filtro de eventos duplicados e antigos, transporte Socket.IO sobre MSW. |
+| `desktop` | 1440 x 900 | Todos os specs. |
+| `mobile` | 390 x 844 | Fluxos principais (`@main`), regressão visual (`@visual`) e responsividade (`@responsive`). |
+| `tablet` | 768 x 1024 | Responsividade (`@responsive`). |
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+| Spec | Cobertura |
+| --- | --- |
+| `00-mock-api` | Contratos da API simulada (filtros, paginação, 404, cenários, autenticação). |
+| `01-catalog` | Busca, filtros combinados, ordenação, paginação, histórico e refresh, resposta fora de ordem. |
+| `02-detail` | Acesso direto, NFT inexistente, edição indisponível, limite de quantidade. |
+| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado), logout e troca de usuário. |
+| `04-favorites` | Atualização otimista, falha com rollback, persistência. |
+| `05-cart` | Quantidades, remoção, cupons, persistência após refresh, carrinho do visitante preservado no login. |
+| `06-purchase` | Compra completa do catálogo ao recibo, com recibo imutável. |
+| `07-payment-failures` | Pagamento recusado, carteira recusada, clique duplo, timeout com mesma chave, preço alterado e esgotado. |
+| `08-account` | Perfil, avatar, senha e carteiras, com erros de validação e da API. |
+| `09-realtime-checkout` | `nft.updated` no detalhe, carrinho e checkout, bloqueando cotação desatualizada. |
+| `10-realtime-resilience` | Eventos duplicados e antigos, queda e reconexão, pedido pendente retomado. |
+| `11-a11y` | Varredura axe WCAG 2.1 A/AA, teclado, foco em diálogos e gaveta, erros associados aos campos. |
+| `12-loading` | Skeletons em rede lenta, falha e nova tentativa. |
+| `visual` | Regressão visual de Início, detalhe, carrinho e pagamento (desktop e mobile). |
+| `responsive` | Ausência de overflow horizontal em todas as telas, nas três larguras. |
 
-### Removing Tailwind CSS
+Observações:
 
-If you prefer not to use Tailwind CSS:
+- Cada teste usa um contexto novo do navegador, então começa com estado e `localStorage` limpos.
+- O relatório HTML fica em `playwright-report/` e os traces das falhas em `test-results/`.
+- Localmente o Playwright usa 1 worker (2 no CI) para não esgotar a memória da máquina; a suíte completa leva cerca de 5 minutos.
+- Os baselines visuais em `e2e/__screenshots__/` foram gerados no Windows. Depois de uma mudança visual intencional, rode `npm run test:visual:update`.
+- Os testes de tempo real passam pelo `socket.io-client` real e os de REST pelos handlers MSW; cenários sensíveis a tempo controlam latência (cenários), disparo de eventos (API de controle) e relógio (`page.clock`).
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
+## Performance (Lighthouse)
 
+Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build demo com o cenário padrão dos mocks. Mediana de 3 execuções por página e perfil. Detalhes, versões e condições em [lighthouse/RESULTS.md](lighthouse/RESULTS.md); relatórios HTML e JSON da execução representativa em `lighthouse/reports/`.
 
+| Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| mobile | `/` | **74** | 96 | 100 | 92 | 4,54 s | 0,031 | 52 ms |
+| mobile | `/nfts/emerald-ape-042` | **73** | 97 | 100 | 92 | 4,64 s | 0,000 | 15 ms |
+| desktop | `/` | 98 | 96 | 100 | 92 | 0,96 s | 0,006 | 0 ms |
+| desktop | `/nfts/emerald-ape-042` | 98 | 97 | 100 | 92 | 0,95 s | 0,002 | 0 ms |
 
-## Routing
+Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x).
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+### Por que a performance mobile fica abaixo de 90
 
-### Adding A Route
+Todas as outras metas são atingidas, e o mesmo build tira 98 no desktop. No mobile, o LCP (cerca de 4,6 s) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
+1. **Service worker do MSW:** o worker precisa ser registrado e ativado antes de qualquer chamada, e o Lighthouse sempre mede com o perfil limpo, então paga esse custo em toda execução.
+2. **Peso do código de mocks:** cerca de 160 KB gzip no caminho crítico. Quase metade vem de dependências internas do MSW para cookies (`tldts`, com a lista de sufixos públicos, e `tough-cookie`).
+3. **Latência simulada:** 150 ms em cada chamada no cenário padrão (catálogo, destaques, carrinho).
 
-TanStack will automatically generate the content of the route file for you.
+Sob a rede e a CPU limitadas do perfil mobile, isso soma mais de 3 s antes de a imagem começar a carregar. O enunciado proíbe simplificações exclusivas para a auditoria, então os mocks e a latência foram mantidos. Com uma API real, esses três custos deixam de existir.
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+Otimizações aplicadas: rota inicial e layout da loja no bundle principal (sem segunda ida à rede para chunks), preload do chunk do MSW em paralelo com o JS principal, imagens WebP com `srcset`, prioridade alta para as primeiras imagens, fonte self-hosted com `font-display: swap`, área principal com altura mínima para evitar deslocamento do rodapé (o CLS do detalhe desktop caiu de 0,155 para 0,002).
 
-### Adding Links
+## Deploy
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+**Pendente.** O `vercel.json` já está pronto: usa `npm run build:demo` (mocks ligados) e reescreve todas as rotas para `index.html`, para que acesso direto e refresh funcionem.
 
-```tsx
-import { Link } from "@tanstack/react-router";
+## Estrutura
+
 ```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
+src/
+  contracts/   schemas Valibot e tipos compartilhados entre app e mocks
+  core/        HTTP (Axios), API, query keys e options, sessão, tempo real, dinheiro
+  ui/          componentes shadcn/ui reestilizados com os tokens do Kurio
+  pattern/     peças reutilizáveis (formulários, estados de erro, carrossel, stepper)
+  layouts/     estruturas visuais (loja, perfil, recibo)
+  features/    funcionalidades (catálogo, NFT, carrinho, checkout, pedidos, conta)
+  routes/      rotas finas: guards, search params e composição
+  mocks/       MSW: banco simulado, fixtures, handlers REST, Socket.IO e cenários
+e2e/           testes Playwright, helpers e baselines visuais
+lighthouse/    configuração, script de resumo, resultados e relatórios
+design/        prints do Figma usados como referência (fora do Git)
 ```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
