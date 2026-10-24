@@ -1,14 +1,22 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Link, Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
+import { useRealtime } from '@core/realtime'
+import { useSession } from '@core/session'
 import { ErrorFallback } from '@pattern/widget-boundary'
 import { buttonVariants } from '@ui/button'
 import { Toaster } from '@ui/sonner'
 
 const Devtools = import.meta.env.DEV ? lazy(() => import('@core/devtools')) : () => null
 
+const RealtimeConnection = () => {
+  useRealtime(useSession()?.user.id ?? null)
+  return null
+}
+
 const RootComponent = () => (
   <>
+    <RealtimeConnection />
     <HeadContent />
     <a
       href="#conteudo"

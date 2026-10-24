@@ -94,7 +94,7 @@ export const quoteQuery = (owner: string, cartUpdatedAt: string) =>
     staleTime: 0,
   })
 
-const PENDING_ORDER_POLL_MS = 1500
+const PENDING_ORDER_POLL_MS = 5000
 
 export const orderQuery = (userId: string, orderId: string) =>
   queryOptions({
