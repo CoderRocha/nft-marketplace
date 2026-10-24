@@ -5,6 +5,8 @@ import type { MockControl } from './fixtures'
 
 export const isMobile = (page: Page) => (page.viewportSize()?.width ?? 1440) < 768
 
+export const waitForRealtime = (page: Page) => page.locator('html[data-realtime="connected"]').waitFor({ state: 'attached' })
+
 export const buyFromDetail = async (page: Page, path = '/nfts/emerald-ape-042') => {
   await page.goto(path)
   await page.getByRole('heading', { level: 1 }).first().waitFor()

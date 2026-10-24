@@ -38,10 +38,18 @@ test.describe('Falhas de pagamento', () => {
     test.setTimeout(60_000)
     await mocks.boot('timeout-pedido')
     await startPurchase(page, mocks)
+    const orderKeys: Array<string | undefined> = []
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/orders') {
+        orderKeys.push(request.headers()['idempotency-key'])
+      }
+    })
     const review = await openReview(page)
     await review.getByRole('button', { name: 'Confirmar e pagar' }).click()
-    await expect(review.getByText(/Verificando o pedido/)).toBeVisible({ timeout: 15_000 })
     await expect(page).toHaveURL(/\/orders\/ord_/, { timeout: 20_000 })
+    expect(orderKeys).toHaveLength(2)
+    expect(orderKeys[0]).toBeTruthy()
+    expect(orderKeys[1]).toBe(orderKeys[0])
     expect(await listOrders(mocks)).toHaveLength(1)
     await page.reload()
     await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })

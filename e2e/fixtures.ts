@@ -44,6 +44,8 @@ export type MockControl = {
   expireSession: () => Promise<void>
   token: () => Promise<string | undefined>
   updateNft: (nftId: string, change: { editionId: string; price?: string; available?: number }) => Promise<void>
+  dropRealtime: () => Promise<void>
+  replayRealtime: () => Promise<void>
 }
 
 export const test = base.extend<{ mocks: MockControl }>({
@@ -82,6 +84,12 @@ export const test = base.extend<{ mocks: MockControl }>({
       token: () => readToken(page),
       updateNft: async (nftId, change) => {
         await callApi(page, { method: 'POST', path: `/__mocks/nfts/${nftId}/update`, body: change })
+      },
+      dropRealtime: async () => {
+        await callApi(page, { method: 'POST', path: '/__mocks/realtime/drop' })
+      },
+      replayRealtime: async () => {
+        await callApi(page, { method: 'POST', path: '/__mocks/realtime/replay' })
       },
     })
   },
