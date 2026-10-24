@@ -2,6 +2,7 @@ import { keepPreviousData, queryOptions } from '@tanstack/react-query'
 import type { Session } from '@contracts/auth'
 import type { NftListParams } from '@contracts/nft'
 import { fetchSession } from '@core/api/auth'
+import { fetchCart, fetchQuote } from '@core/api/cart'
 import { fetchFavorites } from '@core/api/favorites'
 import { fetchMockState } from '@core/api/mocks'
 import { fetchNft, fetchNftHighlights, fetchNfts, fetchRelatedNfts } from '@core/api/nfts'
@@ -77,4 +78,17 @@ export const relatedNftsQuery = (id: string) =>
   queryOptions({
     queryKey: keys.nfts.related(id).queryKey,
     queryFn: ({ signal }) => fetchRelatedNfts(id, signal),
+  })
+
+export const cartQuery = (owner: string) =>
+  queryOptions({
+    queryKey: keys.cart.current(owner).queryKey,
+    queryFn: ({ signal }) => fetchCart(signal),
+  })
+
+export const quoteQuery = (owner: string, cartUpdatedAt: string) =>
+  queryOptions({
+    queryKey: keys.quote.current(owner, cartUpdatedAt).queryKey,
+    queryFn: ({ signal }) => fetchQuote(signal),
+    staleTime: 0,
   })

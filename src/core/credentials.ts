@@ -27,6 +27,14 @@ export const setSessionToken = (token: string | null) => {
 
 export const getGuestCartId = () => readStorage(GUEST_CART_KEY)
 
+export const ensureGuestCartId = () => {
+  const existing = getGuestCartId()
+  if (existing) return existing
+  const created = crypto.randomUUID()
+  writeStorage(GUEST_CART_KEY, created)
+  return created
+}
+
 export const setGuestCartId = (cartId: string | null) => {
   writeStorage(GUEST_CART_KEY, cartId)
 }

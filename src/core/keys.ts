@@ -22,4 +22,12 @@ const me = createQueryKeys('me', {
   wallets: (userId: string) => [userId],
 })
 
-export const keys = mergeQueryKeys(mocks, nfts, session, me)
+const cart = createQueryKeys('cart', {
+  current: (owner: string) => [owner],
+})
+
+const quote = createQueryKeys('quote', {
+  current: (owner: string, cartUpdatedAt: string) => [owner, cartUpdatedAt],
+})
+
+export const keys = mergeQueryKeys(mocks, nfts, session, me, cart, quote)

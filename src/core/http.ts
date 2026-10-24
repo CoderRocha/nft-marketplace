@@ -2,7 +2,7 @@ import axios, { isAxiosError, isCancel, type AxiosResponse, type Method } from '
 import * as v from 'valibot'
 import { problemSchema } from '@contracts/problem'
 import { API_BASE_URL, REQUEST_TIMEOUT_MS } from '@core/constants'
-import { getGuestCartId, getSessionToken } from '@core/credentials'
+import { ensureGuestCartId, getGuestCartId, getSessionToken } from '@core/credentials'
 import { mocksReady } from '@core/mocks-ready'
 
 export type FriendlyError = Error & {
@@ -125,7 +125,7 @@ const http = axios.create({
 http.interceptors.request.use(async (config) => {
   await mocksReady
   const token = getSessionToken()
-  const guestCartId = getGuestCartId()
+  const guestCartId = token ? getGuestCartId() : ensureGuestCartId()
   if (token) config.headers.set('Authorization', `Bearer ${token}`)
   if (guestCartId) config.headers.set('X-Cart-Id', guestCartId)
   return config
