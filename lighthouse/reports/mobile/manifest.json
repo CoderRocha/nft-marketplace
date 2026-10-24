@@ -1,0 +1,74 @@
+[
+  {
+    "url": "http://127.0.0.1:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_06.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_06.report.json",
+    "summary": {
+      "performance": 0.73,
+      "accessibility": 0.96,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_39.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_39.report.json",
+    "summary": {
+      "performance": 0.74,
+      "accessibility": 0.96,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/nfts/emerald-ape-042",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_08_54.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_08_54.report.json",
+    "summary": {
+      "performance": 0.73,
+      "accessibility": 0.97,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/nfts/emerald-ape-042",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_09_10.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_09_10.report.json",
+    "summary": {
+      "performance": 0.73,
+      "accessibility": 0.97,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_23.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\-2026_10_24_23_08_23.report.json",
+    "summary": {
+      "performance": 0.74,
+      "accessibility": 0.96,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/nfts/emerald-ape-042",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_09_25.report.html",
+    "jsonPath": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\Projetos\\nft-marketplace\\lighthouse\\reports\\mobile\\nfts_emerald_ape_042-2026_10_24_23_09_25.report.json",
+    "summary": {
+      "performance": 0.73,
+      "accessibility": 0.97,
+      "best-practices": 1,
+      "seo": 0.92
+    }
+  }
+]

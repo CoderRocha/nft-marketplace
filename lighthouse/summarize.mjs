@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { arch, cpus, platform, release, totalmem } from 'node:os'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 
 const PROFILES = ['mobile', 'desktop']
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo']
@@ -18,6 +18,15 @@ const median = (values) => {
 }
 
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
+
+const manifests = PROFILES.map((profile) => join('lighthouse', 'reports', profile, 'manifest.json'))
+  .filter((path) => existsSync(path))
+  .map((path) => readJson(path))
+
+if (manifests.flat().some((run) => !existsSync(run.jsonPath))) {
+  console.log('Os relatórios não representativos já foram removidos. RESULTS.md mantido como está.')
+  process.exit(0)
+}
 
 const lines = ['# Resultados Lighthouse', '', `Gerado em ${new Date().toISOString()} por \`lighthouse/summarize.mjs\`.`, '']
 let environment
@@ -38,7 +47,7 @@ for (const profile of PROFILES) {
     })
     const metrics = METRICS.map(([id, , format]) => format(median(reports.map((report) => report.audits[id].numericValue))))
     const representative = runs.find((run) => run.isRepresentativeRun) ?? runs[0]
-    lines.push(`| \`${pathname}\` | ${runs.length} | ${scores.join(' | ')} | ${metrics.join(' | ')} | ${representative.htmlPath.replaceAll('\\', '/')} |`)
+    lines.push(`| \`${pathname}\` | ${runs.length} | ${scores.join(' | ')} | ${metrics.join(' | ')} | ${relative('lighthouse', representative.htmlPath).replaceAll('\\', '/')} |`)
   }
   lines.push('')
 }
@@ -56,3 +65,8 @@ if (environment) {
 
 writeFileSync(join('lighthouse', 'RESULTS.md'), `${lines.join('\n')}\n`)
 console.log(lines.join('\n'))
+
+for (const run of manifests.flat().filter((candidate) => !candidate.isRepresentativeRun)) {
+  rmSync(run.jsonPath, { force: true })
+  rmSync(run.htmlPath, { force: true })
+}
