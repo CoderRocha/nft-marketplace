@@ -16,7 +16,9 @@ type ShopLayoutProps = {
 
 const MARKET_PATHS = ['/nfts', '/cart', '/checkout']
 
-const OWN_MOBILE_BAR_PATHS = ['/nfts/', '/cart', '/checkout']
+const OWN_MOBILE_BAR_PATHS = ['/nfts/', '/cart', '/checkout', '/login', '/register']
+
+const AUTH_PATHS = ['/login', '/register']
 
 const navItemClassName =
   'relative flex h-full items-center text-[0.9375rem] text-foreground transition-colors hover:text-primary aria-[current=page]:font-semibold aria-[current=page]:text-primary aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:bottom-0 aria-[current=page]:after:h-0.5 aria-[current=page]:after:bg-primary'
@@ -189,8 +191,8 @@ const FooterColumn = ({ title, children }: { title: string; children: ReactNode 
   </div>
 )
 
-const Footer = ({ newsletter, devTools }: Pick<ShopLayoutProps, 'newsletter' | 'devTools'>) => (
-  <footer className="mx-auto mt-20 w-full max-w-shop px-4 md:px-6">
+const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'newsletter' | 'devTools'> & { className?: string }) => (
+  <footer className={cn('mx-auto mt-20 w-full max-w-shop px-4 md:px-6', className)}>
     <div className="grid gap-8 bg-card px-6 py-8 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
       {HIGHLIGHTS.map((highlight) => (
         <section key={highlight.letter} className="flex flex-col gap-3 lg:border-r lg:border-primary/60 lg:pr-6">
@@ -288,13 +290,16 @@ const Footer = ({ newsletter, devTools }: Pick<ShopLayoutProps, 'newsletter' | '
   </footer>
 )
 
-export const ShopLayout = ({ children, cartCount, account, newsletter, devTools, onSearch }: ShopLayoutProps) => (
-  <div className="flex min-h-dvh flex-col pb-24 md:pb-0">
-    <Header cartCount={cartCount} account={account} onSearch={onSearch} />
-    <main id="conteudo" className="flex-1">
-      {children}
-    </main>
-    <Footer newsletter={newsletter} devTools={devTools} />
-    <MobileTabBar cartCount={cartCount} onSearch={onSearch} />
-  </div>
-)
+export const ShopLayout = ({ children, cartCount, account, newsletter, devTools, onSearch }: ShopLayoutProps) => {
+  const { pathname } = useLocation()
+  return (
+    <div className="flex min-h-dvh flex-col pb-24 md:pb-0">
+      <Header cartCount={cartCount} account={account} onSearch={onSearch} />
+      <main id="conteudo" className="flex-1">
+        {children}
+      </main>
+      <Footer newsletter={newsletter} devTools={devTools} className={AUTH_PATHS.includes(pathname) ? 'max-md:hidden' : undefined} />
+      <MobileTabBar cartCount={cartCount} onSearch={onSearch} />
+    </div>
+  )
+}

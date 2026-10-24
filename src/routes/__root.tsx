@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query'
-import { Link, Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { HeadContent, Link, Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 import { ErrorFallback } from '@pattern/widget-boundary'
 import { buttonVariants } from '@ui/button'
@@ -9,6 +9,7 @@ const Devtools = import.meta.env.DEV ? lazy(() => import('@core/devtools')) : ()
 
 const RootComponent = () => (
   <>
+    <HeadContent />
     <a
       href="#conteudo"
       className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
@@ -37,4 +38,5 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   component: RootComponent,
   notFoundComponent: NotFound,
   errorComponent: ErrorFallback,
+  head: () => ({ meta: [{ title: 'Kurio - Marketplace de NFTs' }] }),
 })
