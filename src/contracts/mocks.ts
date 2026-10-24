@@ -1,4 +1,6 @@
 import * as v from 'valibot'
+import { ethAmountSchema } from '@contracts/money'
+import { EDITION_IDS } from '@contracts/nft'
 
 export const SCENARIOS = [
   { id: 'padrao', label: 'Padrão', description: 'Latência curta e todos os serviços respondendo.' },
@@ -35,3 +37,11 @@ export const failureInputSchema = v.object({
 })
 
 export type FailureInput = v.InferOutput<typeof failureInputSchema>
+
+export const nftUpdateInputSchema = v.object({
+  editionId: v.picklist(EDITION_IDS),
+  price: v.optional(ethAmountSchema),
+  available: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+})
+
+export type NftUpdateInput = v.InferOutput<typeof nftUpdateInputSchema>

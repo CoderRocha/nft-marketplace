@@ -1,9 +1,10 @@
 import { http, HttpResponse } from 'msw'
 import * as v from 'valibot'
-import { failureInputSchema, scenarioInputSchema } from '@contracts/mocks'
+import { failureInputSchema, nftUpdateInputSchema, scenarioInputSchema } from '@contracts/mocks'
 import { db, mutate, resetDb } from '@mocks/db'
 import { bearerToken } from '@mocks/auth'
-import { apiUrl, readJson, validationProblem } from '@mocks/network'
+import { apiUrl, notFoundProblem, readJson, validationProblem } from '@mocks/network'
+import { updateNftEdition } from '@mocks/nft-updates'
 import { applyScenario } from '@mocks/scenarios'
 
 const resetInputSchema = v.object({ scenario: v.optional(scenarioInputSchema.entries.scenario, 'padrao') })
@@ -45,5 +46,13 @@ export const controlHandlers = [
       for (const session of current.sessions) if (!token || session.token === token) session.expiresAt = expiredAt
     })
     return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.post<{ nftId: string }>(apiUrl('/__mocks/nfts/:nftId/update'), async ({ request, params }) => {
+    const input = v.safeParse(nftUpdateInputSchema, await readJson(request))
+    if (!input.success) return validationProblem({ nft: ['Alteração inválida.'] })
+    const { editionId, ...change } = input.output
+    const nft = updateNftEdition(params.nftId, editionId, change)
+    return nft ? HttpResponse.json({ id: nft.id, version: nft.version }) : notFoundProblem('NFT ou edição inexistente.')
   }),
 ]

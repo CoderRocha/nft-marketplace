@@ -1,5 +1,6 @@
 import type { FailureInput, ScenarioId } from '@contracts/mocks'
 import type { EditionId } from '@contracts/nft'
+import type { Order, WalletConnection } from '@contracts/order'
 import type { Wallets } from '@contracts/wallet'
 import { seedNfts, type NftRecord } from '@mocks/fixtures/nfts'
 import { seedUsers, type UserRecord } from '@mocks/fixtures/users'
@@ -28,6 +29,29 @@ export type CartRecord = {
   updatedAt: string
 }
 
+export type OrderRecord = Order & {
+  userId: string
+  idempotencyKey: string
+  payloadHash: string
+  settleAt: string
+}
+
+export type ConnectionRecord = WalletConnection & { userId: string }
+
+export type ScenarioFlags = {
+  walletRejections: number
+  priceChangePending: boolean
+  soldOutPending: boolean
+  orderTimeoutPending: boolean
+}
+
+export const idleFlags = (): ScenarioFlags => ({
+  walletRejections: 0,
+  priceChangePending: false,
+  soldOutPending: false,
+  orderTimeoutPending: false,
+})
+
 export type MockDb = {
   scenario: ScenarioId
   callCount: number
@@ -38,9 +62,12 @@ export type MockDb = {
   favorites: Record<string, string[]>
   wallets: Record<string, Wallets>
   carts: Record<string, CartRecord>
+  orders: OrderRecord[]
+  connections: ConnectionRecord[]
+  flags: ScenarioFlags
 }
 
-const STORAGE_KEY = 'kurio-mocks:v3'
+const STORAGE_KEY = 'kurio-mocks:v4'
 
 const seed = (): MockDb => ({
   scenario: 'padrao',
@@ -52,6 +79,9 @@ const seed = (): MockDb => ({
   favorites: seedFavorites(),
   wallets: seedWallets(),
   carts: {},
+  orders: [],
+  connections: [],
+  flags: idleFlags(),
 })
 
 const isMockDb = (value: unknown): value is MockDb =>
@@ -64,7 +94,9 @@ const isMockDb = (value: unknown): value is MockDb =>
   Array.isArray(value.nfts) &&
   'favorites' in value &&
   'wallets' in value &&
-  'carts' in value
+  'carts' in value &&
+  'orders' in value &&
+  'flags' in value
 
 const load = (): MockDb => {
   try {

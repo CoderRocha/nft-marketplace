@@ -1,6 +1,7 @@
 import { MAX_QUANTITY_PER_ORDER, type Edition } from '@contracts/nft'
 import type { Cart } from '@contracts/cart'
 import type { Quote, QuoteIssue } from '@contracts/quote'
+import { hashText } from '@core/hash'
 import { addEth, compareEth, formatEthLabel, multiplyEth, percentOfEth, subtractEth } from '@core/money'
 import { db, mutate, type CartLineRecord, type CartRecord } from '@mocks/db'
 import { COUPONS, NETWORK_FEES } from '@mocks/fixtures/coupons'
@@ -95,12 +96,6 @@ const issuesFor = ({ line, nft, edition }: ResolvedLine): QuoteIssue[] => {
   return issues
 }
 
-const hashString = (text: string) => {
-  let hash = 5381
-  for (let index = 0; index < text.length; index += 1) hash = (Math.imul(hash, 33) ^ text.charCodeAt(index)) >>> 0
-  return hash.toString(16).padStart(8, '0')
-}
-
 export const buildQuote = (cart: CartRecord): Quote => {
   const lines = resolveLines(cart)
   const subtotal = addEth('0', ...lines.map(({ line, edition }) => multiplyEth(edition.price, line.quantity)))
@@ -110,7 +105,7 @@ export const buildQuote = (cart: CartRecord): Quote => {
   const networkFee = addEth('0', ...networks.map((network) => NETWORK_FEES[network]))
   const total = addEth(subtractEth(subtotal, discount), networkFee)
   const issues = lines.flatMap(issuesFor)
-  const version = hashString(
+  const version = hashText(
     JSON.stringify({
       lines: lines.map(({ line, edition }) => [line.nftId, line.editionId, line.quantity, edition.price, edition.available >= line.quantity]),
       coupon: coupon?.code ?? null,

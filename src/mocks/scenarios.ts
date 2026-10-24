@@ -1,5 +1,5 @@
 import type { ScenarioId } from '@contracts/mocks'
-import { mutate, type FailureRule } from '@mocks/db'
+import { idleFlags, mutate, type FailureRule, type ScenarioFlags } from '@mocks/db'
 import { createRandom } from '@mocks/random'
 
 const FAILURES_BEFORE_RECOVERY = 3
@@ -34,10 +34,19 @@ const DEFAULT_SESSION_MS = 2 * 60 * 60 * 1000
 export const sessionDurationMs = (scenario: ScenarioId) =>
   scenario === 'sessao-expirada' ? SHORT_SESSION_MS : DEFAULT_SESSION_MS
 
+const scenarioFlags = (scenario: ScenarioId): ScenarioFlags => ({
+  ...idleFlags(),
+  walletRejections: scenario === 'carteira-recusada' ? 1 : 0,
+  priceChangePending: scenario === 'preco-alterado-no-checkout',
+  soldOutPending: scenario === 'esgotado-no-checkout',
+  orderTimeoutPending: scenario === 'timeout-pedido',
+})
+
 export const applyScenario = (scenario: ScenarioId) => {
   mutate((current) => {
     current.scenario = scenario
     current.callCount = 0
     current.failures = scenarioFailures(scenario)
+    current.flags = scenarioFlags(scenario)
   })
 }

@@ -50,19 +50,21 @@ export const walletsSchema = v.object({
 
 export type Wallets = v.InferOutput<typeof walletsSchema>
 
+export const walletFieldsSchema = v.object({
+  displayName: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(60)),
+  nickname: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(40)),
+  network: v.picklist(NETWORK_IDS),
+  profileName: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(60)),
+  address: v.pipe(v.string(), v.trim()),
+  ensOrSecondary: v.pipe(v.string(), v.trim(), v.maxLength(80)),
+  provider: v.picklist(WALLET_PROVIDER_IDS),
+  referralCode: v.pipe(v.string(), v.trim(), v.regex(REFERRAL_CODE_PATTERN)),
+  email: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.email()),
+  ensName: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.regex(ENS_NAME_PATTERN)),
+})
+
 export const walletInputSchema = v.pipe(
-  v.object({
-    displayName: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(60)),
-    nickname: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(40)),
-    network: v.picklist(NETWORK_IDS),
-    profileName: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(60)),
-    address: v.pipe(v.string(), v.trim()),
-    ensOrSecondary: v.pipe(v.string(), v.trim(), v.maxLength(80)),
-    provider: v.picklist(WALLET_PROVIDER_IDS),
-    referralCode: v.pipe(v.string(), v.trim(), v.regex(REFERRAL_CODE_PATTERN)),
-    email: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.email()),
-    ensName: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.regex(ENS_NAME_PATTERN)),
-  }),
+  walletFieldsSchema,
   v.forward(
     v.check((input) => isValidAddress(input.network, input.address)),
     ['address'],
