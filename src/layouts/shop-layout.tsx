@@ -295,7 +295,7 @@ export const ShopLayout = ({ children, cartCount, account, newsletter, devTools,
   return (
     <div className="flex min-h-dvh flex-col pb-24 md:pb-0">
       <Header cartCount={cartCount} account={account} onSearch={onSearch} />
-      <main id="conteudo" tabIndex={-1} className="flex-1 focus:outline-none">
+      <main id="conteudo" tabIndex={-1} className="min-h-dvh flex-1 focus:outline-none">
         {children}
       </main>
       <Footer newsletter={newsletter} devTools={devTools} className={AUTH_PATHS.includes(pathname) ? 'max-md:hidden' : undefined} />
