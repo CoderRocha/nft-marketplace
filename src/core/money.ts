@@ -1,10 +1,10 @@
+import { ETH_AMOUNT_PATTERN } from '@contracts/money'
+
 export const ETH_DECIMALS = 18
 
 const WEI_PER_ETH = 10n ** BigInt(ETH_DECIMALS)
 
-const ETH_PATTERN = /^\d+(\.\d{1,18})?$/
-
-export const isEthAmount = (value: string) => ETH_PATTERN.test(value)
+export const isEthAmount = (value: string) => ETH_AMOUNT_PATTERN.test(value)
 
 export const toWei = (eth: string) => {
   if (!isEthAmount(eth)) throw new Error(`Valor ETH inválido: ${eth}`)
