@@ -10,6 +10,15 @@ type ApiCall = {
   token?: string
 }
 
+export const USERS = {
+  ana: { email: 'ana@kurio.dev', password: 'Senha@123', displayName: 'Ana Souza' },
+  bruno: { email: 'bruno@kurio.dev', password: 'Senha@123', displayName: 'Bruno Lima' },
+} as const
+
+export type DemoUser = keyof typeof USERS
+
+const SESSION_TOKEN_KEY = 'kurio:session-token'
+
 const callApi = (page: Page, call: ApiCall) =>
   page.evaluate(async ({ method, path, body, token }): Promise<ApiResult> => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -23,12 +32,16 @@ const callApi = (page: Page, call: ApiCall) =>
     return { status: response.status, body: text ? JSON.parse(text) : null }
   }, call)
 
+const readToken = (page: Page) => page.evaluate((key) => localStorage.getItem(key) ?? undefined, SESSION_TOKEN_KEY)
+
 export type MockControl = {
   boot: (scenario?: ScenarioId, path?: string) => Promise<void>
   api: (call: ApiCall) => Promise<ApiResult>
   reset: (scenario?: ScenarioId) => Promise<void>
   scenario: (scenario: ScenarioId) => Promise<void>
   fail: (failure: Partial<FailureInput> & Pick<FailureInput, 'method' | 'path' | 'kind'>) => Promise<void>
+  loginAs: (user: DemoUser, path?: string) => Promise<void>
+  expireSession: () => Promise<void>
 }
 
 export const test = base.extend<{ mocks: MockControl }>({
@@ -47,6 +60,21 @@ export const test = base.extend<{ mocks: MockControl }>({
       },
       fail: async (failure) => {
         await callApi(page, { method: 'POST', path: '/__mocks/failures', body: failure })
+      },
+      loginAs: async (user, path = '/') => {
+        const { email, password } = USERS[user]
+        const result = await callApi(page, { method: 'POST', path: '/auth/login', body: { email, password } })
+        const body = result.body
+        if (typeof body !== 'object' || body === null || !('token' in body) || typeof body.token !== 'string') {
+          throw new Error(`Login de teste falhou: ${result.status}`)
+        }
+        await page.evaluate(([key, token]) => {
+          localStorage.setItem(key, token)
+        }, [SESSION_TOKEN_KEY, body.token] as const)
+        await page.goto(path)
+      },
+      expireSession: async () => {
+        await callApi(page, { method: 'POST', path: '/__mocks/session/expire', token: await readToken(page) })
       },
     })
   },
