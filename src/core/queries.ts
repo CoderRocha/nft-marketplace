@@ -6,6 +6,7 @@ import { fetchCart, fetchQuote } from '@core/api/cart'
 import { fetchFavorites } from '@core/api/favorites'
 import { fetchMockState } from '@core/api/mocks'
 import { fetchNft, fetchNftHighlights, fetchNfts, fetchRelatedNfts } from '@core/api/nfts'
+import { fetchOrder } from '@core/api/orders'
 import { fetchProfile } from '@core/api/profile'
 import { fetchWallets } from '@core/api/wallets'
 import { getSessionToken, setSessionToken } from '@core/credentials'
@@ -91,4 +92,13 @@ export const quoteQuery = (owner: string, cartUpdatedAt: string) =>
     queryKey: keys.quote.current(owner, cartUpdatedAt).queryKey,
     queryFn: ({ signal }) => fetchQuote(signal),
     staleTime: 0,
+  })
+
+const PENDING_ORDER_POLL_MS = 1500
+
+export const orderQuery = (userId: string, orderId: string) =>
+  queryOptions({
+    queryKey: keys.me.order(userId, orderId).queryKey,
+    queryFn: ({ signal }) => fetchOrder(orderId, signal),
+    refetchInterval: (query) => (query.state.data?.status === 'pending' ? PENDING_ORDER_POLL_MS : false),
   })

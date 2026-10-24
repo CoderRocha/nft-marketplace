@@ -20,6 +20,7 @@ const me = createQueryKeys('me', {
   profile: (userId: string) => [userId],
   favorites: (userId: string) => [userId],
   wallets: (userId: string) => [userId],
+  order: (userId: string, orderId: string) => [userId, orderId],
 })
 
 const cart = createQueryKeys('cart', {
