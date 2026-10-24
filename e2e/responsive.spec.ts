@@ -5,6 +5,8 @@ const ROUTES = [
   { path: '/', ready: '#catalogo article' },
   { path: '/nfts/emerald-ape-042', ready: 'text=Mais desta coleção' },
   { path: '/nfts/nao-existe-000', ready: 'text=NFT não encontrado' },
+  { path: '/cart', ready: 'text=Seu carrinho está vazio' },
+  { path: '/login', ready: 'form[aria-label="Entrar"]' },
 ]
 
 test.describe('Responsividade @responsive', () => {
