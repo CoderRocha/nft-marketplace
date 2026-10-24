@@ -2,10 +2,10 @@
   "ci": {
     "collect": {
       "startServerCommand": "npm run preview -- --strictPort",
-      "startServerReadyPattern": "localhost:4173",
+      "startServerReadyPattern": "127.0.0.1:4173",
       "url": [
-        "http://localhost:4173/",
-        "http://localhost:4173/nfts/emerald-ape-042"
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/nfts/emerald-ape-042"
       ],
       "numberOfRuns": 3,
       "settings": {

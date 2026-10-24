@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const BASE_URL = 'http://localhost:4173'
+const BASE_URL = 'http://127.0.0.1:4173'
 
 const requestedProjects = process.argv.filter((arg) => arg.startsWith('--project='))
 
@@ -9,6 +9,7 @@ const unitOnly = requestedProjects.length > 0 && requestedProjects.every((arg) =
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  workers: 2,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: [['html', { open: 'never' }], ['list']],
