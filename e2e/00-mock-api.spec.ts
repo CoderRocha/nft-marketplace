@@ -46,7 +46,8 @@ test.describe('API simulada pelo MSW', () => {
   })
 
   test('cenário de erro 503 falha três vezes e recupera', async ({ mocks }) => {
-    await mocks.boot('erro-503')
+    await mocks.boot('padrao', '/nfts/nao-existe-000')
+    await mocks.scenario('erro-503')
     const statuses = []
     for (let attempt = 0; attempt < 4; attempt += 1) statuses.push((await mocks.api({ method: 'GET', path: '/nfts' })).status)
     expect(statuses).toEqual([503, 503, 503, 200])
