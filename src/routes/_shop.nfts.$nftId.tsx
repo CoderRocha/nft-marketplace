@@ -1,5 +1,6 @@
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import { nftDetailQuery, relatedNftsQuery } from '@core/queries'
+import { BuyActions } from '@features/cart/add-to-cart'
 import { NftDetail } from '@features/nft/nft-detail'
 import { nftSearchDefaults, nftSearchSchema, type NftSearch } from '@features/nft/schemas'
 
@@ -16,6 +17,7 @@ const NftRoute = () => {
       onSearchChange={(next: Partial<NftSearch>) => {
         void navigate({ search: (previous) => ({ ...previous, ...next }), replace: true, resetScroll: false })
       }}
+      renderActions={(selection, layout) => <BuyActions selection={selection} layout={layout} />}
     />
   )
 }

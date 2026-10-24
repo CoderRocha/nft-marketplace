@@ -1,19 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { EyeIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
 import type { NftSummary } from '@contracts/nft'
+import { CardCartButton } from '@features/cart/add-to-cart'
 import { FavoriteButton } from '@features/favorites/favorite-button'
 
-type NftCardActionsProps = {
-  nft: NftSummary
-  extra?: ReactNode
-}
-
-export const NftCardActions = ({ nft, extra }: NftCardActionsProps) => (
+export const NftCardActions = ({ nft }: { nft: NftSummary }) => (
   <>
     <FavoriteButton nft={nft} variant="overlay" className="absolute top-4 right-4 md:hidden" />
     <div className="absolute inset-x-0 bottom-5 hidden justify-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 md:flex">
-      {extra}
+      <CardCartButton nft={nft} />
       <FavoriteButton nft={nft} variant="card" />
       <Link
         to="/nfts/$nftId"
