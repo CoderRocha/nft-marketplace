@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useSession } from '@core/session'
+import { FavoritesList } from '@features/favorites/favorites-list'
 
-const FavoritesRoute = () => (
-  <div className="mx-auto w-full max-w-shop px-4 py-10 md:px-6">
-    <h1 className="text-2xl font-bold">Lista de interesse</h1>
-  </div>
-)
+const FavoritesRoute = () => {
+  const session = useSession()
+  return session && <FavoritesList key={session.user.id} userId={session.user.id} />
+}
 
-export const Route = createFileRoute('/_shop/_private/profile/favorites')({ component: FavoritesRoute })
+export const Route = createFileRoute('/_shop/_private/profile/favorites')({
+  head: () => ({ meta: [{ title: 'Lista de interesse - Kurio' }] }),
+  component: FavoritesRoute,
+})

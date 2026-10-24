@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useSession } from '@core/session'
+import { ProfileForm } from '@features/profile/profile-form'
 
-const ProfileRoute = () => (
-  <div className="mx-auto w-full max-w-shop px-4 py-10 md:px-6">
-    <h1 className="text-2xl font-bold">Perfil do colecionador</h1>
-  </div>
-)
+const ProfileRoute = () => {
+  const session = useSession()
+  return session && <ProfileForm key={session.user.id} userId={session.user.id} />
+}
 
-export const Route = createFileRoute('/_shop/_private/profile/')({ component: ProfileRoute })
+export const Route = createFileRoute('/_shop/_private/profile/')({
+  head: () => ({ meta: [{ title: 'Meu perfil - Kurio' }] }),
+  component: ProfileRoute,
+})
