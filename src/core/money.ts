@@ -38,3 +38,5 @@ export const formatEth = (eth: string, minFractionDigits = 2) => {
   const [whole = '0', fraction = ''] = fromWei(toWei(eth)).split('.')
   return `${whole}.${fraction.padEnd(minFractionDigits, '0')}`
 }
+
+export const formatEthLabel = (eth: string) => `${formatEth(eth)} ETH`
