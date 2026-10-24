@@ -42,11 +42,14 @@ export const AccountMenu = () => {
   const { user } = session
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label={`Conta de ${user.displayName}`} className="rounded-full focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none">
+      <DropdownMenuTrigger className="rounded-full focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none">
         <Avatar className="size-8 border border-primary">
           {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
-          <AvatarFallback className="bg-secondary text-xs font-bold text-primary">{initials(user.displayName)}</AvatarFallback>
+          <AvatarFallback aria-hidden="true" className="bg-secondary text-xs font-bold text-primary">
+            {initials(user.displayName)}
+          </AvatarFallback>
         </Avatar>
+        <span className="sr-only">Conta de {user.displayName}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>

@@ -33,7 +33,7 @@ const RootComponent = () => (
 )
 
 const NotFound = () => (
-  <main id="conteudo" className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
+  <main id="conteudo" tabIndex={-1} className="mx-auto flex min-h-dvh max-w-md focus:outline-none flex-col items-center justify-center gap-4 p-6 text-center">
     <h1 className="text-2xl font-bold">Página não encontrada</h1>
     <p className="text-muted-foreground">O endereço acessado não existe ou foi removido.</p>
     <Link to="/" className={buttonVariants()}>

@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { AccountMenu } from '@features/auth/account-menu'
 import { useCart } from '@features/cart/hooks'
 import { SearchDialog } from '@features/catalog/search-dialog'
@@ -10,6 +10,7 @@ import { ShopLayout } from '@layouts/shop-layout'
 const ShopRoute = () => {
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
+  const searchOpener = useRef<HTMLElement | null>(null)
   const cart = useCart()
   return (
     <ShopLayout
@@ -18,6 +19,7 @@ const ShopRoute = () => {
       newsletter={<NewsletterForm />}
       devTools={<ScenarioPanel />}
       onSearch={() => {
+        searchOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setSearchOpen(true)
       }}
     >
@@ -25,6 +27,7 @@ const ShopRoute = () => {
       <SearchDialog
         open={searchOpen}
         onOpenChange={setSearchOpen}
+        returnFocus={searchOpener}
         onSearch={(query) => {
           void navigate({ to: '/', search: { q: query }, hash: 'catalogo' })
         }}

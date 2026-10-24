@@ -36,7 +36,7 @@ const NAV: NavEntry[] = [
 
 export const ProfileLayout = ({ children, onSignOut }: ProfileLayoutProps) => (
   <div className="mx-auto grid w-full max-w-shop gap-8 px-4 pt-6 md:grid-cols-[13.25rem_minmax(0,1fr)] md:px-6 lg:grid-cols-[14.5rem_minmax(0,1fr)]">
-    <aside className="self-start bg-card md:py-4">
+    <aside className="min-w-0 self-start bg-card md:py-4">
       <h2 className="hidden px-3 pb-2 text-[0.9375rem] font-semibold md:block">Meu perfil</h2>
       <nav aria-label="Meu perfil">
         <ul className="flex overflow-x-auto [scrollbar-width:none] md:flex-col">

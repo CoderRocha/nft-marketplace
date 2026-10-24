@@ -1,5 +1,5 @@
 import { SearchIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type RefObject } from 'react'
 import { Button } from '@ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@ui/dialog'
 import { Input } from '@ui/input'
@@ -8,13 +8,14 @@ type SearchDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSearch: (query: string) => void
+  returnFocus: RefObject<HTMLElement | null>
 }
 
-export const SearchDialog = ({ open, onOpenChange, onSearch }: SearchDialogProps) => {
+export const SearchDialog = ({ open, onOpenChange, onSearch, returnFocus }: SearchDialogProps) => {
   const [query, setQuery] = useState('')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent closeLabel="Fechar busca" className="sm:max-w-lg">
+      <DialogContent closeLabel="Fechar busca" finalFocus={returnFocus} className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Buscar NFTs</DialogTitle>
           <DialogDescription>Procure por nome, coleção, criador ou ID do token.</DialogDescription>
