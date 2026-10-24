@@ -1,6 +1,4 @@
 import { setupWorker } from 'msw/browser'
-import { http, HttpResponse } from 'msw'
+import { handlers } from '@mocks/handlers'
 
-export const worker = setupWorker(
-  http.get('*/health', () => HttpResponse.json({ ok: true })),
-)
+export const worker = setupWorker(...handlers)

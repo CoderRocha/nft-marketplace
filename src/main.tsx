@@ -1,31 +1,21 @@
-import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
+import '@/styles.css'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from '@tanstack/react-router'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { createQueryClient } from '@/query-client'
+import { createAppRouter } from '@/router'
 
-const router = createRouter({
-  routeTree,
-  defaultPreload: 'intent',
-  scrollRestoration: true,
-})
+const queryClient = createQueryClient()
+const router = createAppRouter(queryClient)
 
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
+const container = document.getElementById('app')
+if (!container) throw new Error('Missing #app element')
 
-async function enableMocking() {
-  if (!import.meta.env.DEV || import.meta.env.VITE_MSW !== 'true') return
-
-  const { worker } = await import('./mocks/browser')
-  await worker.start({ onUnhandledFrame: 'bypass' })
-}
-
-const rootElement = document.getElementById('app')!
-
-enableMocking().then(() => {
-  if (!rootElement.innerHTML) {
-    const root = ReactDOM.createRoot(rootElement)
-    root.render(<RouterProvider router={router} />)
-  }
-})
+createRoot(container).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </StrictMode>,
+)
