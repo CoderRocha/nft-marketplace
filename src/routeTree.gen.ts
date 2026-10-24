@@ -15,6 +15,7 @@ import { Route as ShopPrivateRouteImport } from './routes/_shop._private'
 import { Route as ShopCartRouteImport } from './routes/_shop.cart'
 import { Route as ShopLoginRouteImport } from './routes/_shop.login'
 import { Route as ShopPrivateProfileRouteImport } from './routes/_shop._private.profile'
+import { Route as ShopNftsNftIdRouteImport } from './routes/_shop.nfts.$nftId'
 import { Route as ShopPrivateProfileIndexRouteImport } from './routes/_shop._private.profile.index'
 import { Route as ShopPrivateProfileFavoritesRouteImport } from './routes/_shop._private.profile.favorites'
 
@@ -46,6 +47,11 @@ const ShopPrivateProfileRoute = ShopPrivateProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => ShopPrivateRoute,
 } as any)
+const ShopNftsNftIdRoute = ShopNftsNftIdRouteImport.update({
+  id: '/nfts/$nftId',
+  path: '/nfts/$nftId',
+  getParentRoute: () => ShopRoute,
+} as any)
 const ShopPrivateProfileIndexRoute = ShopPrivateProfileIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof ShopCartRoute
   '/login': typeof ShopLoginRoute
   '/profile': typeof ShopPrivateProfileRouteWithChildren
+  '/nfts/$nftId': typeof ShopNftsNftIdRoute
   '/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
   '/profile/': typeof ShopPrivateProfileIndexRoute
 }
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/': typeof ShopIndexRoute
   '/cart': typeof ShopCartRoute
   '/login': typeof ShopLoginRoute
+  '/nfts/$nftId': typeof ShopNftsNftIdRoute
   '/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
   '/profile': typeof ShopPrivateProfileIndexRoute
 }
@@ -81,15 +89,28 @@ export interface FileRoutesById {
   '/_shop/login': typeof ShopLoginRoute
   '/_shop/': typeof ShopIndexRoute
   '/_shop/_private/profile': typeof ShopPrivateProfileRouteWithChildren
+  '/_shop/nfts/$nftId': typeof ShopNftsNftIdRoute
   '/_shop/_private/profile/favorites': typeof ShopPrivateProfileFavoritesRoute
   '/_shop/_private/profile/': typeof ShopPrivateProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/cart' | '/login' | '/profile' | '/profile/favorites' | '/profile/'
+    | '/'
+    | '/cart'
+    | '/login'
+    | '/profile'
+    | '/nfts/$nftId'
+    | '/profile/favorites'
+    | '/profile/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/login' | '/profile/favorites' | '/profile'
+  to:
+    | '/'
+    | '/cart'
+    | '/login'
+    | '/nfts/$nftId'
+    | '/profile/favorites'
+    | '/profile'
   id:
     | '__root__'
     | '/_shop'
@@ -98,6 +119,7 @@ export interface FileRouteTypes {
     | '/_shop/login'
     | '/_shop/'
     | '/_shop/_private/profile'
+    | '/_shop/nfts/$nftId'
     | '/_shop/_private/profile/favorites'
     | '/_shop/_private/profile/'
   fileRoutesById: FileRoutesById
@@ -150,6 +172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopPrivateProfileRouteImport
       parentRoute: typeof ShopPrivateRoute
     }
+    '/_shop/nfts/$nftId': {
+      id: '/_shop/nfts/$nftId'
+      path: '/nfts/$nftId'
+      fullPath: '/nfts/$nftId'
+      preLoaderRoute: typeof ShopNftsNftIdRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/_shop/_private/profile/': {
       id: '/_shop/_private/profile/'
       path: '/'
@@ -197,6 +226,7 @@ interface ShopRouteChildren {
   ShopCartRoute: typeof ShopCartRoute
   ShopLoginRoute: typeof ShopLoginRoute
   ShopIndexRoute: typeof ShopIndexRoute
+  ShopNftsNftIdRoute: typeof ShopNftsNftIdRoute
 }
 
 const ShopRouteChildren: ShopRouteChildren = {
@@ -204,6 +234,7 @@ const ShopRouteChildren: ShopRouteChildren = {
   ShopCartRoute: ShopCartRoute,
   ShopLoginRoute: ShopLoginRoute,
   ShopIndexRoute: ShopIndexRoute,
+  ShopNftsNftIdRoute: ShopNftsNftIdRoute,
 }
 
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
