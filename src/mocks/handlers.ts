@@ -1,5 +1,6 @@
 import type { AnyHandler } from 'msw'
 import { authHandlers } from '@mocks/handlers/auth'
+import { cartHandlers } from '@mocks/handlers/cart'
 import { controlHandlers } from '@mocks/handlers/control'
 import { favoriteHandlers } from '@mocks/handlers/favorites'
 import { newsletterHandlers } from '@mocks/handlers/newsletter'
@@ -12,6 +13,7 @@ export const handlers: AnyHandler[] = [
   ...authHandlers,
   ...nftHandlers,
   ...favoriteHandlers,
+  ...cartHandlers,
   ...profileHandlers,
   ...walletHandlers,
   ...newsletterHandlers,

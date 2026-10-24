@@ -3,6 +3,7 @@ import * as v from 'valibot'
 import { loginInputSchema, registerInputSchema } from '@contracts/auth'
 import { db, mutate } from '@mocks/db'
 import { authenticate, bearerToken, createSession, hashPassword, toUser } from '@mocks/auth'
+import { mergeGuestCart } from '@mocks/cart'
 import { endpoint, fieldErrorsFrom, problem, readJson, validationProblem } from '@mocks/network'
 
 const REGISTER_MESSAGES = {
@@ -49,6 +50,7 @@ export const authHandlers = [
       current.users.push(user)
     })
     const session = createSession(user.id)
+    mergeGuestCart(request.headers.get('X-Cart-Id'), user.id)
     return HttpResponse.json({ token: session.token, expiresAt: session.expiresAt, user: toUser(user) }, { status: 201 })
   }),
 
@@ -66,6 +68,7 @@ export const authHandlers = [
       })
     }
     const session = createSession(user.id)
+    mergeGuestCart(request.headers.get('X-Cart-Id'), user.id)
     return HttpResponse.json({ token: session.token, expiresAt: session.expiresAt, user: toUser(user) })
   }),
 
