@@ -1,184 +1,303 @@
 # Kurio - Marketplace de NFTs
 
-Marketplace de NFTs com descoberta, compra e conta do colecionador, construído sobre o layout "Kurio" do Figma. Toda a API (REST e Socket.IO) é simulada no navegador com MSW, então o projeto roda a partir de um checkout limpo, sem backend.
+> **Marketplace de NFTs com descoberta, compra e conta do colecionador**
 
-**Demonstração publicada:** https://nft-marketplace-three-tau.vercel.app/
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TanStack](https://img.shields.io/badge/TanStack-Router%20%2B%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 
-Decisões de arquitetura, contratos, política de cache, sessão, carrinho, reconciliação em tempo real, limitações e desvios do Figma estão em [ARCHITECTURE.md](ARCHITECTURE.md).
+Um marketplace de NFTs feito com React, TypeScript, TanStack, Tailwind CSS e shadcn/ui, seguindo o layout Kurio do Figma.
 
-## Stack
+**Demo:** [https://nft-marketplace-three-tau.vercel.app](https://nft-marketplace-three-tau.vercel.app/)
 
-| Responsabilidade | Tecnologia |
-| --- | --- |
-| Interface | React 19 + TypeScript 6 (strict) |
-| Build | Vite 8 |
-| Roteamento | TanStack Router (rotas por arquivo, search params validados, guards) |
-| Estado remoto | TanStack Query |
-| Formulários | TanStack Form + Valibot |
-| Cliente HTTP | Axios |
-| Tempo real | socket.io-client |
-| Estilo e componentes | Tailwind CSS 4 + shadcn/ui (base-nova sobre Base UI) |
-| Mocks | MSW 3 + @mswjs/socket.io-binding |
-| Testes E2E, visuais e de acessibilidade | Playwright + @axe-core/playwright |
-| Auditoria | Lighthouse CI |
+## Índice
 
-## Requisitos
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Configuração Inicial](#configuração-inicial)
+- [Comandos](#comandos)
+- [Usuários de teste e cupons](#usuários-de-teste-e-cupons)
+- [Cenários dos mocks](#cenários-dos-mocks)
+- [Reproduzindo os fluxos de falha](#reproduzindo-os-fluxos-de-falha)
+- [Testes](#testes)
+- [Performance (Lighthouse)](#performance-lighthouse)
+- [Deploy](#deploy)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Autor](#autor)
 
-- Node.js 22 ou superior e npm 11.
-- Google Chrome instalado (usado pelo Lighthouse CI).
-- Chromium do Playwright para os testes (`npx playwright install chromium`).
+---
 
-## Setup
+## Sobre o Projeto
+
+O Kurio cobre os fluxos de descoberta, compra e conta de um colecionador de NFTs, em desktop, tablet e mobile.
+
+Não existe backend. A API REST e o Socket.IO são simulados no navegador com MSW, então o projeto roda a partir de um checkout limpo, e a mesma camada de mocks é usada no desenvolvimento, nos testes e na demo publicada.
+
+As decisões de arquitetura, os contratos da API, as políticas de sessão, carrinho e cache, o tempo real e os desvios do Figma estão no [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
+## Tech Stack
+
+- **React 19** e **TypeScript** (modo strict)
+- **Vite** para build e dev server
+- **TanStack Router** - rotas por arquivo, parâmetros de busca e rotas privadas
+- **TanStack Query** - consultas, mutations e cache
+- **TanStack Form** + **Valibot** - formulários e validação
+- **Axios** - cliente HTTP
+- **Socket.IO** (`socket.io-client`) - eventos em tempo real
+- **Tailwind CSS** e **shadcn/ui** - estilo e componentes
+- **MSW** + `@mswjs/socket.io-binding` - simula a API REST e o Socket.IO no navegador
+- **Playwright** + axe - testes E2E, visuais e de acessibilidade
+- **Lighthouse CI** - auditoria de performance e qualidade
+
+---
+
+## Features
+
+A loja tem catálogo com filtros, carrinho, pagamento com carteira simulada e área do colecionador. Visitante pode navegar e montar o carrinho; pagamento, perfil, carteiras, favoritos e pedidos pedem login.
+
+Telas:
+
+- **Início** - destaques, catálogo, busca, filtros, ordenação e paginação
+
+- **Detalhe do NFT** - galeria, edições, quantidade, favoritos e compra
+
+- **Carrinho** - quantidades, remoção, cupom e resumo de valores
+
+- **Pagamento** - dados do colecionador, carteira, rede e revisão antes de enviar
+
+- **Confirmação** - recibo com a transação, os itens, a taxa e o total
+
+- **Login e Cadastro**
+
+- **Perfil** - dados, avatar e troca de senha
+
+- **Carteiras** - principal e secundária
+
+Preço e disponibilidade mudam em tempo real: se um NFT do carrinho muda durante a navegação, a tela avisa e o checkout não deixa confirmar com valores antigos.
+
+---
+
+## Configuração Inicial
+
+Precisa do **Node.js 22** (com npm 11) e do **Google Chrome**, que é usado pelo Lighthouse.
+
+**Instale as dependências**
 
 ```bash
 npm ci
 npx playwright install chromium
+```
+
+**Suba o projeto**
+
+```bash
 npm run dev
 ```
 
-A aplicação abre em `http://localhost:3000`, já com os mocks ligados.
+A aplicação abre em [http://localhost:3000](http://localhost:3000), já com os mocks ligados.
 
-## Variáveis de ambiente
+**Variáveis de ambiente**
 
-Os arquivos `.env.development` (usado por `npm run dev`) e `.env.demo` (usado por `npm run build:demo`) são versionados e já ligam os mocks. Não é preciso criar `.env` para rodar o projeto. O `.env.example` documenta as mesmas variáveis.
+Não é preciso criar `.env`. Os arquivos `.env.development` (usado no `npm run dev`) e `.env.demo` (usado no build da demo) já vêm no repositório, e o `.env.example` mostra as mesmas variáveis:
 
-| Variável | Padrão | Descrição |
-| --- | --- | --- |
-| `VITE_API_URL` | `/api` | Base das chamadas REST feitas pelo Axios. |
-| `VITE_WS_URL` | vazio | Origem do Socket.IO. Vazio usa a própria origem da página. |
-| `VITE_MOCKS` | `true` | Liga o MSW (REST e Socket.IO) no navegador. Com `false`, o app espera uma API real. |
+- `VITE_API_URL` - base das chamadas REST. Padrão: `/api`
+- `VITE_WS_URL` - origem do Socket.IO. Vazio usa a própria página
+- `VITE_MOCKS` - liga o MSW no navegador. Padrão: `true`
+
+---
 
 ## Comandos
 
-| Comando | O que faz |
-| --- | --- |
-| `npm run dev` | Servidor de desenvolvimento com mocks em `http://localhost:3000`. |
-| `npm run build:demo` | Build otimizado com mocks (o mesmo usado nos testes, no Lighthouse e no deploy). |
-| `npm run build` | Build otimizado sem mocks, para uso com uma API real. |
-| `npm run preview` | Serve o último build em `http://127.0.0.1:4173`. |
-| `npm run typecheck` | Verificação de tipos (`tsc --noEmit`). |
-| `npm run lint` | ESLint com regras de camadas (`eslint-plugin-boundaries`). |
-| `npm run test:e2e` | Todos os testes Playwright (gera o build demo e sobe o preview sozinho). |
-| `npm run test:unit` | Só os testes unitários, sem navegador. |
-| `npm run test:visual:update` | Regenera os baselines de regressão visual. |
-| `npm run lighthouse` | Build demo + auditoria mobile e desktop + resumo em `lighthouse/RESULTS.md`. |
+- `npm run dev` - servidor de desenvolvimento com mocks
+- `npm run build:demo` - build otimizado com mocks (o mesmo dos testes, do Lighthouse e do deploy)
+- `npm run build` - build sem mocks, para usar com uma API real
+- `npm run preview` - serve o último build em [http://127.0.0.1:4173](http://127.0.0.1:4173)
+- `npm run typecheck` - verificação de tipos
+- `npm run lint` - ESLint, incluindo as regras de camadas
+- `npm run test:e2e` - todos os testes Playwright
+- `npm run test:unit` - só os testes unitários
+- `npm run test:visual:update` - atualiza os baselines de regressão visual
+- `npm run lighthouse` - auditoria mobile e desktop, com resumo em `lighthouse/RESULTS.md`
 
-## Credenciais fictícias
+---
 
-Todos os usuários usam a senha `Senha@123`. As senhas são guardadas no mock apenas como hash SHA-256 com salt.
+## Usuários de teste e cupons
 
-| Usuário | E-mail | Observação |
-| --- | --- | --- |
-| Ana Souza | `ana@kurio.dev` | Carteiras Principal (Ethereum, MetaMask) e Reserva (Polygon, Coinbase), um NFT na lista de interesse. |
-| Bruno Lima | `bruno@kurio.dev` | Só carteira principal, lista de interesse diferente da Ana (útil para testar troca de usuário). |
-| Conta existente | `ocupado@kurio.dev` | Use este e-mail no cadastro para ver o conflito de conta. |
+Todos usam a senha `Senha@123`. No mock as senhas ficam só como hash SHA-256 com salt.
 
-Cupons: `KURIO10` aplica 10% de desconto; `EXPIRADO` retorna cupom expirado; qualquer outro código retorna cupom inválido.
+- **Ana Souza** - `ana@kurio.dev`. Tem carteira principal e reserva e um NFT na lista de interesse.
+- **Bruno Lima** - `bruno@kurio.dev`. Só tem carteira principal e outra lista de interesse, bom para testar troca de usuário.
+- `ocupado@kurio.dev` - use no cadastro para ver o conflito de conta.
+
+Cupons:
+
+- `KURIO10` - 10% de desconto
+- `EXPIRADO` - cupom expirado
+- qualquer outro código - cupom inválido
+
+---
 
 ## Cenários dos mocks
 
-O estado do mock (catálogo, usuários, sessões, favoritos, carteiras, carrinhos, pedidos) fica em memória e é espelhado no `localStorage` (`kurio-mocks:v4`), então sobrevive a refresh. O cenário ativo também fica salvo.
+Os dados do mock (catálogo, usuários, sessões, favoritos, carteiras, carrinhos e pedidos) ficam salvos no `localStorage` do navegador, na chave `kurio-mocks:v5`, então sobrevivem ao refresh. O cenário escolhido também fica salvo.
 
-| Cenário | Comportamento |
-| --- | --- |
-| `padrao` | Latência de 150 ms e todos os serviços respondendo. |
-| `vazio` | A busca de NFTs não retorna resultados e não há destaques. |
-| `lento` | Todas as respostas levam cerca de 2,5 s (bom para ver os skeletons). |
-| `latencia-variavel` | Respostas entre 0,2 e 2,2 s, em sequência reproduzível. |
-| `fora-de-ordem` | Buscas mais curtas respondem depois das mais longas (simula resposta antiga chegando por último). |
-| `offline` | As três primeiras chamadas ao catálogo falham por rede, depois recupera. |
-| `erro-500` | As três primeiras chamadas ao catálogo retornam 500, depois recupera. |
-| `erro-503` | As três primeiras chamadas ao catálogo retornam 503 com `Retry-After`, depois recupera. |
-| `sessao-expirada` | Novas sessões expiram 45 s após o login. |
-| `preco-alterado-no-checkout` | Ao confirmar o pedido, o preço do primeiro item do carrinho sobe 0,05 ETH. |
-| `esgotado-no-checkout` | Ao confirmar o pedido, a edição do primeiro item do carrinho esgota. |
-| `timeout-pedido` | O pedido é criado, mas a primeira resposta chega depois do timeout do cliente. |
-| `pagamento-recusado` | A rede recusa o pagamento depois que o pedido é criado. |
-| `carteira-recusada` | A primeira tentativa de conectar a carteira é recusada. |
+- `padrao` - tudo respondendo, com 150 ms de latência
+- `vazio` - catálogo sem resultados e sem destaques
+- `lento` - toda resposta leva uns 2,5 s, bom para ver os skeletons
+- `latencia-variavel` - respostas entre 0,2 e 2,2 s, sempre na mesma sequência
+- `fora-de-ordem` - buscas curtas respondem depois das longas
+- `offline` - as 3 primeiras chamadas do catálogo falham por rede
+- `erro-500` - as 3 primeiras chamadas do catálogo retornam 500
+- `erro-503` - as 3 primeiras chamadas do catálogo retornam 503 com `Retry-After`
+- `sessao-expirada` - a sessão expira 45 s depois do login
+- `preco-alterado-no-checkout` - o preço do primeiro item sobe ao confirmar o pedido
+- `esgotado-no-checkout` - a edição do primeiro item esgota ao confirmar o pedido
+- `timeout-pedido` - o pedido é criado, mas a primeira resposta chega depois do timeout
+- `pagamento-recusado` - a rede recusa o pagamento
+- `carteira-recusada` - a primeira conexão da carteira é recusada
 
-Nos cenários de falha do catálogo, o mock falha três vezes de propósito: o TanStack Query faz a chamada original mais duas tentativas, a interface mostra o erro e o botão "Tentar novamente" recupera.
+Nos cenários de falha do catálogo, o mock falha 3 vezes de propósito: a chamada original e as duas tentativas automáticas falham, a tela mostra o erro e o "Tentar novamente" recupera.
 
-### Como selecionar e restaurar
+**Como trocar de cenário**
 
-- **Pela interface:** link "Cenários de teste" no rodapé (só aparece com mocks ligados). Escolha o cenário e use "Aplicar e recarregar". "Restaurar dados e recarregar" volta o banco ao seed original e aplica o cenário escolhido.
-- **Pela URL:** abra qualquer página com `?cenario=<nome>`, por exemplo `http://localhost:3000/?cenario=erro-503`.
-- **Pela API de controle** (só existe no mock, responde sem latência):
-  - `PUT /api/__mocks/scenario` com `{ "scenario": "lento" }`
-  - `POST /api/__mocks/reset` com `{ "scenario": "padrao" }`
-  - `POST /api/__mocks/failures` com `{ "method": "put", "path": "/me/favorites/:nftId", "kind": 500, "times": 1 }` injeta falhas pontuais em qualquer rota. `kind` aceita um status HTTP (400 a 599), `offline` (falha de rede) ou `timeout` (a resposta nunca chega e o Axios aborta em 8 s).
-- Limpar os dados do site no navegador também restaura o seed.
+- Pelo link **"Cenários de teste"** no rodapé, que só aparece com os mocks ligados.
+- Pela URL, em qualquer página: `http://localhost:3000/?cenario=erro-503`
+- Pela API de controle, que só existe no mock:
+
+```js
+fetch('/api/__mocks/scenario', { method: 'PUT', body: JSON.stringify({ scenario: 'lento' }) })
+```
+
+**Como restaurar os dados**
+
+Use "Restaurar dados e recarregar" no painel de cenários, ou:
+
+```js
+fetch('/api/__mocks/reset', { method: 'POST', body: JSON.stringify({ scenario: 'padrao' }) })
+```
+
+Limpar os dados do site no navegador também volta tudo ao estado inicial.
+
+**Falhas pontuais**
+
+Dá para fazer qualquer rota falhar algumas vezes. O `kind` aceita um status HTTP (400 a 599), `offline` ou `timeout` (a resposta nunca chega e o Axios desiste em 8 s):
+
+```js
+fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'put', path: '/me/favorites/:nftId', kind: 500, times: 1 }) })
+```
+
+---
 
 ## Reproduzindo os fluxos de falha
 
-As chamadas `fetch` abaixo podem ser coladas no console do navegador com a aplicação aberta (o MSW intercepta).
+Os `fetch` abaixo podem ser colados no console do navegador com a aplicação aberta, porque o MSW intercepta.
 
-| Fluxo | Como reproduzir |
-| --- | --- |
-| Catálogo com falha e recuperação | Cenário `erro-503`, `erro-500` ou `offline`; abra o Início e clique em "Tentar novamente" quando o erro aparecer. |
-| Timeout de leitura | Rode `fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'get', path: '/nfts/:id', kind: 'timeout', times: 1 }) })` e abra um NFT. A primeira chamada aborta em 8 s e o retry automático carrega o detalhe. |
-| Skeletons | Cenário `lento`; abra Início, detalhe ou carrinho. |
-| Resposta fora de ordem | Cenário `fora-de-ordem`; busque "gol" e logo depois "golden signal" pelo ícone de busca. O resultado final é sempre o da última busca. |
-| Catálogo vazio | Cenário `vazio`. |
-| Conflito de cadastro | Em "Criar conta", use `ocupado@kurio.dev`. |
-| Sessão expirada | Entre como Ana, abra o perfil e rode `fetch('/api/__mocks/session/expire', { method: 'POST' })`; navegue para "Carteiras". Ou use o cenário `sessao-expirada` e espere 45 s. |
-| Favorito com falha e rollback | Entre como Ana, rode `fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'put', path: '/me/favorites/:nftId', kind: 500 }) })` e clique em "Favoritar" num NFT. |
-| Cupom inválido ou expirado | No carrinho, aplique `NAOEXISTE` ou `EXPIRADO`. |
-| Preço alterado durante o checkout | Cenário `preco-alterado-no-checkout`; faça uma compra até "Confirmar e pagar". O diálogo mostra a mudança e exige "Aceitar novos valores". |
-| Edição esgotada durante o checkout | Cenário `esgotado-no-checkout`; mesma sequência. O pagamento é bloqueado e o diálogo leva ao carrinho. |
-| Timeout com recuperação por idempotência | Cenário `timeout-pedido`; confirme o pagamento. Após cerca de 8 s o cliente reenvia com a mesma `Idempotency-Key` e recebe o mesmo pedido. |
-| Pagamento recusado | Cenário `pagamento-recusado`; o pedido termina recusado e os itens continuam no carrinho. |
-| Carteira recusada | Cenário `carteira-recusada`; a primeira conexão é recusada, a segunda funciona. |
-| Preço ou estoque alterado em tempo real | Com um item no carrinho, rode `fetch('/api/__mocks/nfts/emerald-ape-042/update', { method: 'POST', body: JSON.stringify({ editionId: '1-50', price: '1.5' }) })`. Use `available: 0` para esgotar. |
-| Eventos duplicados e antigos | Depois de duas alterações de preço, rode `fetch('/api/__mocks/realtime/replay', { method: 'POST' })`. O mock reenvia o último evento duas vezes e uma versão antiga. |
-| Queda da conexão em tempo real | Rode `fetch('/api/__mocks/realtime/drop', { method: 'POST' })`. O cliente reconecta e reconcilia com a API. |
-| Pedido pendente após refresh | Confirme um pagamento e recarregue a página enquanto aparece "Aguardando confirmação na rede". O pedido é retomado sem criar outra compra. |
+**Catálogo**
+
+- **Falha e recuperação:** use o cenário `erro-503`, `erro-500` ou `offline`, abra o Início e clique em "Tentar novamente" quando o erro aparecer.
+- **Skeletons:** use o cenário `lento` e abra o Início, o detalhe ou o carrinho.
+- **Resposta fora de ordem:** use o cenário `fora-de-ordem` e busque "gol" e logo depois "golden signal". O resultado final é sempre o da última busca.
+- **Catálogo vazio:** use o cenário `vazio`.
+- **Timeout de leitura:** rode o comando abaixo e abra um NFT. A primeira chamada é abortada em 8 s e o retry carrega o detalhe.
+
+```js
+fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'get', path: '/nfts/:id', kind: 'timeout', times: 1 }) })
+```
+
+**Conta**
+
+- **Conflito de cadastro:** em "Criar conta", use `ocupado@kurio.dev`.
+- **Sessão expirada:** entre como Ana, abra o perfil, rode o comando abaixo e clique em "Carteiras". Ou use o cenário `sessao-expirada` e espere 45 s.
+
+```js
+fetch('/api/__mocks/session/expire', { method: 'POST' })
+```
+
+- **Favorito com falha e rollback:** entre como Ana, rode o comando abaixo e favorite um NFT. O coração volta ao estado anterior e aparece o erro.
+
+```js
+fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'put', path: '/me/favorites/:nftId', kind: 500 }) })
+```
+
+**Carrinho e pagamento**
+
+- **Cupom inválido ou expirado:** no carrinho, aplique `NAOEXISTE` ou `EXPIRADO`.
+- **Preço alterado no checkout:** use o cenário `preco-alterado-no-checkout` e faça uma compra até "Confirmar e pagar". O diálogo mostra a mudança e pede "Aceitar novos valores".
+- **Edição esgotada no checkout:** use o cenário `esgotado-no-checkout` e faça o mesmo caminho. O pagamento é bloqueado e o diálogo leva ao carrinho.
+- **Timeout com idempotência:** use o cenário `timeout-pedido` e confirme o pagamento. Depois de uns 8 s o app reenvia com a mesma `Idempotency-Key` e recebe o mesmo pedido.
+- **Pagamento recusado:** use o cenário `pagamento-recusado`. O pedido termina recusado e os itens continuam no carrinho.
+- **Carteira recusada:** use o cenário `carteira-recusada`. A primeira conexão é recusada e a segunda funciona.
+- **Pedido pendente após refresh:** confirme um pagamento e recarregue a página enquanto aparece "Aguardando confirmação na rede". O pedido volta sem criar outra compra.
+
+**Tempo real**
+
+- **Preço ou estoque mudando:** com um item no carrinho, rode o comando abaixo. Use `available: 0` no lugar do preço para esgotar a edição.
+
+```js
+fetch('/api/__mocks/nfts/emerald-ape-042/update', { method: 'POST', body: JSON.stringify({ editionId: '1-50', price: '1.5' }) })
+```
+
+- **Eventos duplicados e antigos:** depois de duas mudanças de preço, rode o comando abaixo. O mock reenvia o último evento duas vezes e mais um evento antigo, e a tela não muda.
+
+```js
+fetch('/api/__mocks/realtime/replay', { method: 'POST' })
+```
+
+- **Queda da conexão:** rode o comando abaixo. O app avisa, reconecta e busca de novo na API o que mudou.
+
+```js
+fetch('/api/__mocks/realtime/drop', { method: 'POST' })
+```
+
+---
 
 ## Testes
-
-Os testes ficam em `e2e/` e rodam contra o build demo (`npm run build:demo` + `npm run preview`), que o Playwright sobe e derruba sozinho.
 
 ```bash
 npm run test:e2e
 npx playwright show-report
 ```
 
-| Projeto | Viewport | O que roda |
-| --- | --- | --- |
-| `unit` | sem navegador | Dinheiro em wei, filtro de eventos duplicados e antigos, transporte Socket.IO sobre MSW. |
-| `desktop` | 1440 x 900 | Todos os specs. |
-| `mobile` | 390 x 844 | Fluxos principais (`@main`), regressão visual (`@visual`) e responsividade (`@responsive`). |
-| `tablet` | 768 x 1024 | Responsividade (`@responsive`). |
-| `reflow` | 320 x 640 | Responsividade (`@responsive`); equivale a 1280 px com zoom de 400% (WCAG 1.4.10). |
+O Playwright gera o build da demo e sobe o preview sozinho. O relatório HTML fica em `playwright-report/` e os traces das falhas em `test-results/`. Cada teste começa com um navegador limpo, sem dados de outro teste.
 
-| Spec | Cobertura |
-| --- | --- |
-| `00-mock-api` | Contratos da API simulada (filtros, paginação, 404, cenários, autenticação). |
-| `01-catalog` | Busca, filtros combinados, ordenação, paginação, histórico e refresh, resposta fora de ordem, página fora do intervalo, busca mobile pendente cancelada ao abrir um NFT. |
-| `02-detail` | Acesso direto, NFT inexistente, edição indisponível, limite de quantidade. |
-| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado e durante o checkout, com rascunho e carteira restaurados), "Trocar carteira" refletida no checkout, logout apagando o rascunho, troca de usuário, pedido de outra conta (403). |
-| `04-favorites` | Atualização otimista, falha com rollback, persistência. |
-| `05-cart` | Quantidades, remoção, cupons, persistência após refresh, carrinho do visitante preservado no login. |
-| `06-purchase` | Compra completa do catálogo ao recibo, com recibo imutável. |
-| `07-payment-failures` | Pagamento recusado, carteira recusada, clique duplo, timeout com mesma chave, preço alterado e esgotado. |
-| `08-account` | Perfil, avatar, senha e carteiras, com erros de validação e da API. |
-| `09-realtime-checkout` | `nft.updated` no detalhe (com aviso acessível), carrinho e checkout, bloqueando cotação desatualizada. |
-| `10-realtime-resilience` | Eventos duplicados e antigos, queda e reconexão, pedido pendente retomado. |
-| `11-a11y` | Varredura axe WCAG 2.1 A/AA, teclado, foco em diálogos e gaveta, erros associados aos campos. |
-| `12-loading` | Skeletons em rede lenta, falha e nova tentativa. |
-| `visual` | Regressão visual de Início, detalhe, carrinho e pagamento (desktop e mobile). |
-| `responsive` | Ausência de overflow horizontal em todas as telas, nas quatro larguras (390, 768, 1440 e 320 px de reflow). |
+Os testes rodam em cinco projetos:
 
-Observações:
+- **desktop** (1440 x 900) - todos os testes
+- **mobile** (390 x 844) - fluxos principais, regressão visual e responsividade
+- **tablet** (768 x 1024) - responsividade
+- **reflow** (320 x 640) - responsividade, equivalente a zoom de 400%
+- **unit** - testes sem navegador
 
-- Cada teste usa um contexto novo do navegador, então começa com estado e `localStorage` limpos.
-- O relatório HTML fica em `playwright-report/` e os traces das falhas em `test-results/`.
-- Localmente o Playwright usa 1 worker (2 no CI) para não esgotar a memória da máquina; a suíte completa leva cerca de 5 minutos.
-- Os baselines visuais em `e2e/__screenshots__/` foram gerados no Windows. Depois de uma mudança visual intencional, rode `npm run test:visual:update`.
-- Os testes de tempo real passam pelo `socket.io-client` real e os de REST pelos handlers MSW; cenários sensíveis a tempo controlam latência (cenários), disparo de eventos (API de controle) e relógio (`page.clock`).
+O que cada arquivo cobre:
+
+- `00-mock-api` - contratos da API simulada
+- `01-catalog` - busca, filtros, ordenação, paginação, histórico, resposta fora de ordem e página inexistente
+- `02-detail` - acesso direto, NFT inexistente, edição esgotada e limite de quantidade
+- `03-auth` - cadastro, login, expiração (inclusive no checkout), logout, troca de usuário e pedido de outra conta
+- `04-favorites` - favoritar com atualização otimista e rollback
+- `05-cart` - quantidades, remoção, cupons, refresh e carrinho do visitante após o login
+- `06-purchase` - compra completa do catálogo ao recibo
+- `07-payment-failures` - pagamento recusado, carteira recusada, clique duplo, timeout, preço alterado e esgotado
+- `08-account` - perfil, avatar, senha e carteiras, com erros de validação
+- `09-realtime-checkout` - mudança de preço e estoque por Socket.IO no detalhe, carrinho e checkout
+- `10-realtime-resilience` - eventos duplicados e antigos, queda de conexão e pedido pendente
+- `11-a11y` - varredura axe, teclado, foco em diálogos e erros nos campos
+- `12-loading` - skeletons, falha e nova tentativa
+- `visual` - regressão visual de Início, detalhe, carrinho e pagamento
+- `responsive` - sem overflow horizontal em todas as telas
+
+Os testes de tempo real passam pelo `socket.io-client` de verdade, e os de REST pelos handlers do MSW. Os baselines visuais foram gerados no Windows; depois de uma mudança visual intencional, rode `npm run test:visual:update`.
+
+---
 
 ## Performance (Lighthouse)
 
-Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build demo com o cenário padrão dos mocks. Mediana de 3 execuções por página e perfil. Detalhes, versões e condições em [lighthouse/RESULTS.md](lighthouse/RESULTS.md); relatórios HTML e JSON da execução representativa em `lighthouse/reports/`.
+A auditoria roda no Início e no detalhe do NFT, nos perfis mobile e desktop, sobre o build da demo com o cenário padrão. São 3 medições por página e perfil, e a tabela mostra a mediana. Versões, ambiente e relatórios HTML e JSON ficam em [lighthouse/RESULTS.md](lighthouse/RESULTS.md).
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -187,43 +306,58 @@ Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build de
 | desktop | `/` | 97 | 100 | 100 | 100 | 1,10 s | 0,006 | 0 ms |
 | desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,09 s | 0,002 | 0 ms |
 
-Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). Nesta execução o benchmark index foi 2523. A nota de performance mobile varia com a carga da máquina, porque o Lighthouse escala o tempo de CPU observado. Com uma única arte de NFT (benchmark index de 2577), a nota era 74 e 73, com LCP de 4,6 s; as quatro artes acrescentam downloads de imagem na primeira tela (a Home e o carrossel de relacionados do detalhe deixaram de reaproveitar um único arquivo em cache). Priorizar só a imagem do LCP e não baixar a imagem escondida do hero recuperou parte disso (LCP da Home de 5,18 s para 5,01 s).
+**Por que o mobile fica abaixo de 90**
 
-### Por que a performance mobile fica abaixo de 90
+As outras metas passam, e o mesmo build tira 97 no desktop. No mobile, o que segura a nota é o LCP: a primeira imagem do catálogo só aparece depois que os dados chegam, e aqui os dados vêm de uma API que roda dentro do próprio navegador. Antes disso, o perfil mobile (rede e CPU limitadas) precisa:
 
-Todas as outras metas são atingidas (acessibilidade, boas práticas e SEO em 100), e o mesmo build tira 97 no desktop. No mobile, o LCP (entre 4,6 e 5,2 s, conforme a execução) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
+1. registrar e ativar o service worker do MSW, em toda medição, porque o Lighthouse sempre começa com o navegador limpo;
+2. baixar o código dos mocks, uns 168 KB gzip além dos 205 KB da aplicação;
+3. esperar a latência simulada de 150 ms de cada chamada.
 
-1. **Service worker do MSW:** o worker precisa ser registrado e ativado antes de qualquer chamada, e o Lighthouse sempre mede com o perfil limpo, então paga esse custo em toda execução.
-2. **Peso do código de mocks:** cerca de 168 KB gzip no caminho crítico, além dos cerca de 205 KB gzip da aplicação. Só o `tldts`, usado pelo `tough-cookie` dentro do MSW para a lista de sufixos públicos, ocupa cerca de 47 KB gzip.
-3. **Latência simulada:** 150 ms em cada chamada no cenário padrão (catálogo, destaques, carrinho).
+Isso soma mais de 3 s antes de a imagem começar a carregar. Mantive os mocks e a latência porque o enunciado não aceita simplificações só para melhorar a nota. Com uma API real, esses três custos não existem.
 
-Sob a rede e a CPU limitadas do perfil mobile, isso soma mais de 3 s antes de a imagem começar a carregar. O enunciado proíbe simplificações exclusivas para a auditoria, então os mocks e a latência foram mantidos. Com uma API real, esses três custos deixam de existir.
+O que já foi otimizado: a rota inicial vem no bundle principal, o chunk do MSW é pré-carregado junto com o JS, as imagens são WebP com `srcset`, só a imagem do LCP tem prioridade alta, o mobile não baixa a imagem do hero do desktop, a fonte é servida pelo próprio app e o layout reserva espaço para evitar deslocamento (CLS).
 
-Otimizações aplicadas: rota inicial e layout da loja no bundle principal (sem segunda ida à rede para chunks), preload do chunk do MSW em paralelo com o JS principal, imagens WebP com `srcset`, prioridade alta só para a imagem do LCP (o hero só é renderizado no layout ativo, para o mobile não baixar a imagem escondida do desktop), fonte self-hosted com `font-display: swap`, área principal com altura mínima para evitar deslocamento do rodapé (o CLS do detalhe desktop caiu de 0,155 para 0,002).
+A nota mobile também varia um pouco com a carga da máquina. Com uma só arte de NFT ela ficava em 74 e 73; as quatro artes adicionam alguns downloads de imagem na primeira tela.
 
-Avaliado e descartado: trocar o `tldts` pela variante `tldts-icann` por alias de build economizaria cerca de 19 KB gzip, algo como 0,1 s no perfil mobile. Isso não muda a conclusão e exigiria alterar uma dependência interna do MSW, então ficou de fora.
+---
 
 ## Deploy
 
-Publicado na Vercel: https://nft-marketplace-three-tau.vercel.app/
+Publicado na Vercel: [https://nft-marketplace-three-tau.vercel.app](https://nft-marketplace-three-tau.vercel.app/)
 
-- O `vercel.json` usa `npm run build:demo` e reescreve as rotas da SPA para `index.html`, então acesso direto e refresh funcionam em qualquer tela. Arquivos estáticos (`mockServiceWorker.js`, `robots.txt`, imagens e `assets/`) têm prioridade sobre o rewrite.
-- As variáveis vêm do `.env.demo` versionado (`VITE_API_URL=/api`, `VITE_WS_URL=` vazio e `VITE_MOCKS=true`). Não é preciso configurar variáveis no painel da Vercel. Se alguma for criada lá, ela sobrescreve o arquivo, então precisa ter os mesmos valores.
-- Verificado na URL pública: mocks ativos, Socket.IO conectado, `nft.updated` aplicado no detalhe sem recarregar, rota inexistente, compra completa até o recibo e refresh no recibo.
+O `vercel.json` roda o `npm run build:demo` e manda todas as rotas da SPA para o `index.html`, então acesso direto e refresh funcionam em qualquer tela. Arquivos estáticos como o `mockServiceWorker.js` e as imagens continuam sendo servidos normalmente.
 
-## Estrutura
+Não precisa configurar variáveis na Vercel: o build usa o `.env.demo` do repositório. Se criar alguma variável no painel, ela sobrescreve o arquivo, então use os mesmos valores.
+
+---
+
+## Estrutura do Projeto
 
 ```
-src/
-  contracts/   schemas Valibot e tipos compartilhados entre app e mocks
-  core/        HTTP (Axios), API, query keys e options, sessão, tempo real, dinheiro
-  ui/          componentes shadcn/ui reestilizados com os tokens do Kurio
-  pattern/     peças reutilizáveis (formulários, estados de erro, carrossel, stepper)
-  layouts/     estruturas visuais (loja, perfil, recibo)
-  features/    funcionalidades (catálogo, NFT, carrinho, checkout, pedidos, conta)
-  routes/      rotas finas: guards, search params e composição
-  mocks/       MSW: banco simulado, fixtures, handlers REST, Socket.IO e cenários
-e2e/           testes Playwright, helpers e baselines visuais
-lighthouse/    configuração, script de resumo, resultados e relatórios
-design/        prints do Figma usados como referência (fora do Git)
+nft-marketplace/
+├── src/
+│   ├── contracts/            # Schemas Valibot e tipos usados pelo app e pelos mocks
+│   ├── core/                 # Axios, chamadas da API, cache, sessão, tempo real e valores em ETH
+│   ├── ui/                   # Componentes do shadcn/ui com o tema do Kurio
+│   ├── pattern/              # Peças reutilizáveis (formulários, erro, carrossel, stepper)
+│   ├── layouts/              # Layouts da loja, do perfil e do recibo
+│   ├── features/             # Catálogo, NFT, carrinho, checkout, pedidos e conta
+│   ├── routes/               # Rotas (guards, parâmetros de busca e composição)
+│   └── mocks/                # MSW: banco simulado, fixtures, handlers, Socket.IO e cenários
+├── e2e/                      # Testes Playwright e baselines visuais
+├── lighthouse/               # Configuração, resultados e relatórios do Lighthouse
+├── public/                   # Service worker do MSW, imagens e ícones
+├── vercel.json
+├── vite.config.ts
+└── playwright.config.ts
 ```
+
+---
+
+## Autor
+
+**Guilherme Rocha (CoderRocha)**
+
+- GitHub: [CoderRocha](https://github.com/coderrocha)
+- LinkedIn: [Guilherme Rocha](https://www.linkedin.com/in/guilherme-rocha-da-silva)
