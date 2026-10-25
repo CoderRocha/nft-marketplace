@@ -6,7 +6,7 @@ import * as v from 'valibot'
 import type { Cart } from '@contracts/cart'
 import { REALTIME_EVENTS, realtimeEventSchema, type NftUpdatedEvent, type OrderUpdatedEvent } from '@contracts/events'
 import type { Favorites } from '@contracts/favorites'
-import type { NftPage } from '@contracts/nft'
+import type { NftDetail, NftPage } from '@contracts/nft'
 import { WS_URL } from '@core/constants'
 import { getSessionToken } from '@core/credentials'
 import { createEventGate } from '@core/event-gate'
@@ -27,7 +27,7 @@ const cartNotice = (queryClient: QueryClient, event: NftUpdatedEvent) => {
     .getQueriesData<Cart>({ queryKey: keys.cart._def })
     .flatMap(([, cart]) => cart?.lines ?? [])
     .filter((line) => line.nftId === event.resource.id)
-  if (lines.length === 0) return
+  if (lines.length === 0) return false
   void queryClient.invalidateQueries({ queryKey: keys.cart._def })
   void queryClient.invalidateQueries({ queryKey: keys.quote._def })
   const changes = lines.flatMap((line) => {
@@ -43,11 +43,28 @@ const cartNotice = (queryClient: QueryClient, event: NftUpdatedEvent) => {
   if (first) {
     toast.warning(`Atualização no seu carrinho: ${first}. Revise antes de finalizar.`, { id: `nft-${event.resource.id}-${event.version}`, duration: CART_NOTICE_DURATION_MS })
   }
+  return true
+}
+
+const detailNotice = (queryClient: QueryClient, event: NftUpdatedEvent, previous: NftDetail) => {
+  const query = queryClient.getQueryCache().find({ queryKey: nftDetailQuery(event.resource.id).queryKey })
+  if (!query || query.getObserversCount() === 0) return
+  const [change] = event.data.editions.flatMap((edition) => {
+    const before = previous.editions.find((candidate) => candidate.id === edition.id)
+    if (!before) return []
+    if (before.available > 0 && edition.available === 0) return [`a edição ${edition.label} esgotou`]
+    if (compareEth(before.price, edition.price) !== 0) {
+      return [`o preço da edição ${edition.label} mudou de ${formatEthLabel(before.price)} para ${formatEthLabel(edition.price)}`]
+    }
+    return []
+  })
+  if (change) toast.info(`Atualização em ${event.data.nft.name}: ${change}.`, { id: `nft-detail-${event.resource.id}-${event.version}` })
 }
 
 const applyNftUpdate = (queryClient: QueryClient, event: NftUpdatedEvent) => {
   const { nft, editions } = event.data
   const isNewer = (version: number) => version < event.version
+  const previous = queryClient.getQueryData(nftDetailQuery(nft.id).queryKey)
   queryClient.setQueryData(nftDetailQuery(nft.id).queryKey, (current) =>
     current && isNewer(current.version) ? { ...current, ...nft, editions } : current,
   )
@@ -59,7 +76,8 @@ const applyNftUpdate = (queryClient: QueryClient, event: NftUpdatedEvent) => {
   )
   void queryClient.invalidateQueries({ queryKey: keys.nfts.highlights.queryKey })
   void queryClient.invalidateQueries({ queryKey: keys.nfts.related._def })
-  cartNotice(queryClient, event)
+  const inCart = cartNotice(queryClient, event)
+  if (!inCart && previous && isNewer(previous.version)) detailNotice(queryClient, event, previous)
 }
 
 const applyOrderUpdate = (queryClient: QueryClient, userId: string, event: OrderUpdatedEvent) => {
