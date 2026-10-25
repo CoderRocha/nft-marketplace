@@ -1,6 +1,6 @@
 # Kurio - Marketplace de NFTs
 
-> **Marketplace de NFTs com descoberta, compra e conta do colecionador**
+> **Loja de NFTs com catálogo, carrinho, pagamento com carteira e área do colecionador**
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
@@ -8,7 +8,7 @@
 ![TanStack](https://img.shields.io/badge/TanStack-Router%20%2B%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 
-Um marketplace de NFTs feito com React, TypeScript, TanStack, Tailwind CSS e shadcn/ui, seguindo o layout Kurio do Figma.
+Um marketplace de NFTs feito por mim com React, TypeScript, TanStack, Tailwind CSS e shadcn/ui, seguindo o layout Kurio do Figma.
 
 **Demo:** [https://nft-marketplace-three-tau.vercel.app](https://nft-marketplace-three-tau.vercel.app/)
 
@@ -32,9 +32,9 @@ Um marketplace de NFTs feito com React, TypeScript, TanStack, Tailwind CSS e sha
 
 ## Sobre o Projeto
 
-O Kurio cobre os fluxos de descoberta, compra e conta de um colecionador de NFTs, em desktop, tablet e mobile.
+No Kurio dá para explorar o catálogo, montar o carrinho, pagar com uma carteira simulada e cuidar do perfil e das carteiras. Funciona no desktop, no tablet e no celular.
 
-Não existe backend. A API REST e o Socket.IO são simulados no navegador com MSW, então o projeto roda a partir de um checkout limpo, e a mesma camada de mocks é usada no desenvolvimento, nos testes e na demo publicada.
+Não tem backend: a API REST e o Socket.IO rodam dentro do navegador, com MSW. Basta clonar, instalar e rodar. Usei os mesmos mocks no desenvolvimento, nos testes e na demo publicada.
 
 As decisões de arquitetura, os contratos da API, as políticas de sessão, carrinho e cache e o tempo real estão no [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -52,7 +52,7 @@ As decisões de arquitetura, os contratos da API, as políticas de sessão, carr
 - **Tailwind CSS** e **shadcn/ui** - estilo e componentes
 - **MSW** + `@mswjs/socket.io-binding` - simula a API REST e o Socket.IO no navegador
 - **Playwright** + axe - testes E2E, visuais e de acessibilidade
-- **Lighthouse CI** - auditoria de performance e qualidade
+- **Lighthouse CI** - medição de performance, acessibilidade, boas práticas e SEO
 
 ---
 
@@ -161,7 +161,7 @@ Os dados do mock (catálogo, usuários, sessões, favoritos, carteiras, carrinho
 - `pagamento-recusado` - a rede recusa o pagamento
 - `carteira-recusada` - a primeira conexão da carteira é recusada
 
-Nos cenários de falha do catálogo, o mock falha 3 vezes de propósito: a chamada original e as duas tentativas automáticas falham, a tela mostra o erro e o "Tentar novamente" recupera.
+Nos cenários de falha do catálogo, configurei o mock para falhar 3 vezes: a chamada original e as duas tentativas automáticas falham, a tela mostra o erro e o "Tentar novamente" recupera.
 
 **Como trocar de cenário**
 
@@ -264,7 +264,7 @@ npm run test:e2e
 npx playwright show-report
 ```
 
-O Playwright gera o build da demo e sobe o preview sozinho. O relatório HTML fica em `playwright-report/` e os traces das falhas em `test-results/`. Cada teste começa com um navegador limpo, sem dados de outro teste.
+O Playwright gera o build da demo e sobe o preview sozinho. O relatório HTML fica em `playwright-report/` e os traces das falhas em `test-results/`. Cada teste abre um navegador novo, então um não interfere no outro.
 
 Os testes rodam em cinco projetos:
 
@@ -293,7 +293,7 @@ O que cada arquivo cobre:
 - `visual` - regressão visual de Início, detalhe, carrinho e pagamento
 - `responsive` - sem overflow horizontal em todas as telas
 
-Os testes de tempo real passam pelo `socket.io-client` de verdade, e os de REST pelos handlers do MSW. Os baselines visuais foram gerados no Windows; depois de uma mudança visual intencional, rode `npm run test:visual:update`.
+Os testes usam o app como um usuário usaria: as chamadas passam pelo MSW e os eventos chegam pelo `socket.io-client`, sem mexer no estado do app por dentro. Os baselines visuais foram gerados no Windows; depois de uma mudança visual intencional, rode `npm run test:visual:update`.
 
 ---
 
@@ -308,19 +308,19 @@ A auditoria roda no Início e no detalhe do NFT, nos perfis mobile e desktop, so
 | desktop | `/` | 97 | 100 | 100 | 100 | 1,10 s | 0,006 | 0 ms |
 | desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,09 s | 0,002 | 0 ms |
 
-**Por que o mobile fica abaixo de 90**
+**Sobre a nota de performance no mobile**
 
-As outras metas passam, e o mesmo build tira 97 no desktop. No mobile, o que segura a nota é o LCP: a primeira imagem do catálogo só aparece depois que os dados chegam, e aqui os dados vêm de uma API que roda dentro do próprio navegador. Antes disso, o perfil mobile (rede e CPU limitadas) precisa:
+Acessibilidade, boas práticas e SEO ficam em 100 nos dois perfis, e a performance fica em 97 no desktop. No mobile ela cai para 67 e 68. Investiguei os relatórios e o que pesa é o LCP: a primeira imagem do catálogo só aparece depois que os dados chegam, e aqui os dados vêm de uma API que roda dentro do próprio navegador. Antes disso, com a rede e a CPU limitadas do perfil mobile, o navegador precisa:
 
 1. registrar e ativar o service worker do MSW, em toda medição, porque o Lighthouse sempre começa com o navegador limpo;
 2. baixar o código dos mocks, uns 168 KB gzip além dos 205 KB da aplicação;
 3. esperar a latência simulada de 150 ms de cada chamada.
 
-Isso soma mais de 3 s antes de a imagem começar a carregar. Mantive os mocks e a latência porque o enunciado não aceita simplificações só para melhorar a nota. Com uma API real, esses três custos não existem.
+Somando tudo, passam mais de 3 s até a imagem começar a carregar. Na auditoria mantive os mocks e a latência do jeito que rodam na demo, para medir o mesmo app que está publicado. Com uma API de verdade, esses três custos somem.
 
-O que já foi otimizado: a rota inicial vem no bundle principal, o chunk do MSW é pré-carregado junto com o JS, as imagens são WebP com `srcset`, só a imagem do LCP tem prioridade alta, o mobile não baixa a imagem do hero do desktop, a fonte é servida pelo próprio app e o layout reserva espaço para evitar deslocamento (CLS).
+O que eu já otimizei: a rota inicial vem no bundle principal, o chunk do MSW é pré-carregado junto com o JS, as imagens são WebP com `srcset`, só a imagem do LCP tem prioridade alta, o celular não baixa a imagem do hero do desktop, a fonte é servida pelo próprio app e o layout reserva espaço para nada pular na tela (CLS).
 
-A nota mobile também varia um pouco com a carga da máquina. Com uma só arte de NFT ela ficava em 74 e 73; as quatro artes adicionam alguns downloads de imagem na primeira tela.
+Percebi também que a nota mobile varia com a carga da máquina. Com uma só arte de NFT ela ficava em 74 e 73; as quatro artes acrescentam alguns downloads de imagem na primeira tela.
 
 ---
 
@@ -328,7 +328,7 @@ A nota mobile também varia um pouco com a carga da máquina. Com uma só arte d
 
 Publicado na Vercel: [https://nft-marketplace-three-tau.vercel.app](https://nft-marketplace-three-tau.vercel.app/)
 
-O `vercel.json` roda o `npm run build:demo` e manda todas as rotas da SPA para o `index.html`, então acesso direto e refresh funcionam em qualquer tela. Arquivos estáticos como o `mockServiceWorker.js` e as imagens continuam sendo servidos normalmente.
+O `vercel.json` roda o `npm run build:demo` e manda todas as rotas da SPA para o `index.html`, então dá para abrir qualquer rota direto ou dar refresh sem cair num 404. Arquivos estáticos como o `mockServiceWorker.js` e as imagens continuam sendo servidos normalmente.
 
 Não precisa configurar variáveis na Vercel: o build usa o `.env.demo` do repositório. Se criar alguma variável no painel, ela sobrescreve o arquivo, então use os mesmos valores.
 

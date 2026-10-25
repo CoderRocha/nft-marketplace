@@ -6,7 +6,7 @@ Aqui explico como o código está organizado, os contratos com a API, como sess�
 
 ## Camadas
 
-O código fica em `src/`, separado por responsabilidade. O `eslint-plugin-boundaries` bloqueia imports que fujam da tabela abaixo. O lint também não deixa usar barrel files, classes, `as` nem imports relativos entre módulos.
+Separei o código de `src/` em camadas e usei o `eslint-plugin-boundaries` para o lint bloquear imports fora da tabela abaixo. Também configurei o lint para não aceitar barrel files, classes, `as` nem imports relativos entre módulos.
 
 | Camada | Para que serve | Pode importar |
 | --- | --- | --- |
@@ -146,13 +146,13 @@ Todo evento tem o mesmo formato, e o app valida cada um com o schema de `contrac
 
 `order.updated` vai só para o dono do pedido, com o pedido completo. O app atualiza a tela do pedido e, quando ele termina, busca de novo carrinho, cotação e catálogo e limpa a tentativa de checkout.
 
-No mock, toda mudança de NFT e todo fim de pedido passam por uma única função, que grava no banco e publica o evento. Assim a API REST e os eventos nunca ficam diferentes.
+No mock, fiz toda mudança de NFT e todo fim de pedido passar por uma única função, que grava no banco e publica o evento. Assim a API e os eventos nunca ficam diferentes.
 
 ---
 
 ## Socket.IO nos mocks
 
-O servidor Socket.IO é simulado com o `ws.link` do MSW e o `@mswjs/socket.io-binding`, que fala o protocolo do Engine.IO e do Socket.IO. O app usa o `socket.io-client` normal.
+Simulei o servidor Socket.IO com o `ws.link` do MSW e o `@mswjs/socket.io-binding`, que fala o protocolo do Engine.IO e do Socket.IO. O app usa o `socket.io-client` normal, sem nenhum atalho.
 
 Detalhes e limitações desse transporte:
 
@@ -162,7 +162,7 @@ Detalhes e limitações desse transporte:
 - O handshake simulado anuncia ping a cada 25 s. Sem ping o cliente cairia a cada 30 s, então o mock envia o ping a cada 10 s.
 - O binding não tem rooms nem namespaces. O mock liga cada conexão ao usuário do token, que vai na query string do handshake, e filtra quem recebe cada evento.
 - Não existe connection state recovery (o `sid` é fixo). Por isso o app sempre busca de novo na API quando reconecta.
-- O binding pede `msw@^2`. Um `overrides` no `package.json` deixa usar com o MSW 3, e o teste `e2e/unit/realtime-transport.unit.ts` cobre handshake, eventos, queda, reconexão e ping.
+- O binding pede `msw@^2`. Usei um `overrides` no `package.json` para rodar com o MSW 3, e o teste `e2e/unit/realtime-transport.unit.ts` cobre handshake, eventos, queda, reconexão e ping.
 
 ---
 
@@ -178,7 +178,7 @@ Se a sessão expira no meio do uso, qualquer 401 de uma chamada com token encerr
 
 O formulário de pagamento é salvo no `sessionStorage` a cada mudança, por usuário, e volta quando o mesmo usuário entra de novo. O rascunho guarda também qual carteira estava escolhida. Com carteira cadastrada, os dados vêm sempre do perfil, então uma edição feita em "Trocar carteira" aparece ao voltar. Com "Outra carteira", vale o que foi digitado.
 
-No logout e na troca de usuário, o app cancela e remove do cache tudo o que é privado (perfil, carteiras, favoritos, pedidos, carrinho e cotação), descarta o carrinho de visitante e fecha o socket, que reconecta com o token novo. O logout também apaga o rascunho do pagamento. A tentativa de idempotência continua salva, porque não tem dados pessoais e evita comprar de novo se houver um pedido pendente. As chaves do cache incluem o `userId`, e o app ignora eventos de outro usuário.
+No logout e na troca de usuário, o app cancela e remove do cache tudo o que é privado (perfil, carteiras, favoritos, pedidos, carrinho e cotação), descarta o carrinho de visitante e fecha o socket, que reconecta com o token novo. O logout também apaga o rascunho do pagamento. Deixei a tentativa de idempotência salva, porque ela não tem dados pessoais e evita comprar de novo se houver um pedido pendente. As chaves do cache incluem o `userId`, e o app ignora eventos de outro usuário.
 
 As senhas ficam no mock só como hash SHA-256 com salt. Nenhuma senha é guardada no navegador.
 
@@ -186,7 +186,7 @@ As senhas ficam no mock só como hash SHA-256 com salt. Nenhuma senha é guardad
 
 ## Carrinho
 
-O carrinho fica no servidor (no mock), tanto para visitante quanto para usuário logado. O visitante recebe um id anônimo, salvo no `localStorage` e enviado em `X-Cart-Id`, então o carrinho sobrevive ao refresh.
+Optei por guardar o carrinho no servidor (no mock) também para o visitante, então ele sobrevive ao refresh e pode ser juntado ao da conta no login. O visitante recebe um id anônimo, salvo no `localStorage` e enviado em `X-Cart-Id`.
 
 No login e no cadastro, os itens do visitante entram no carrinho da conta, respeitando o estoque de cada edição. Depois disso o id anônimo é descartado, e depois de um logout o carrinho começa vazio.
 
@@ -250,14 +250,14 @@ Busca, filtros, aba, ordem e página do catálogo ficam na URL, então sobrevive
 
 ---
 
-## Reconciliação entre REST e Socket.IO
+## Como a API e os eventos ficam em sincronia
 
 1. NFTs e pedidos têm uma `version` que aumenta a cada mudança, igual na API e nos eventos.
 2. O app descarta eventos repetidos (mesmo `eventId`) e eventos com versão menor ou igual à última aplicada para o mesmo recurso. Nada é aplicado duas vezes, nem os avisos.
 3. Um evento só muda o cache se for mais novo que o dado que já está lá. Pedidos já finalizados ignoram eventos.
 4. Ao reconectar, o app busca de novo na API os NFTs, o carrinho, a cotação e os pedidos que estão na tela, para pegar o que mudou durante a queda. A tela avisa quando a conexão cai e quando volta.
 5. O socket abre depois dos mocks, é recriado na troca de usuário e fechado no logout. Os listeners são removidos quando o componente sai da tela.
-6. O aviso de mudança no carrinho compara o preço novo com o `acceptedPrice`, que não muda sozinho. Comparar com o cache perdia avisos quando dois eventos chegavam em sequência.
+6. No começo o aviso do carrinho comparava com o preço em cache, mas isso perdia avisos quando dois eventos chegavam em sequência. Passei a comparar com o `acceptedPrice`, que não muda sozinho.
 
 ---
 
@@ -282,32 +282,32 @@ Outras decisões:
 - "Mercado" fica ativo no detalhe, no carrinho e no pagamento, e leva ao catálogo no Início.
 - Deixei login e cadastro como rotas próprias, para o acesso direto e o retorno ao fluxo funcionarem. No desktop eles abrem como diálogo sobre o Início, como no Figma; no mobile, como página inteira.
 - O pagamento é uma página só no desktop e duas etapas no mobile (dados do colecionador e "Pagamento com carteira"). Ao trocar de etapa, a página volta ao topo e o foco vai para o título da etapa.
-- Incluí um diálogo de revisão antes de enviar o pedido. Ele não está no Figma, mas o enunciado pede revisão antes do envio.
+- Incluí um diálogo de revisão antes de enviar o pedido. Ele não está no Figma, mas evita pagar sem conferir os valores e a carteira.
 - A carteira cadastrada (Principal, Reserva ou outra) define endereço e rede, e o provedor (MetaMask, WalletConnect ou Coinbase Wallet) é a conexão simulada.
 - A confirmação é uma rota própria (`/orders/:id`) com o card do Figma. Pedido pendente e recusado usam o mesmo card.
 - A "Lista de interesse" do perfil é a tela de favoritos, e o coração da barra mobile leva para ela.
 - "Comprar" adiciona ao carrinho e abre o carrinho. O botão de carrinho (no mobile e no hover do card) só adiciona e mostra um aviso com o atalho "Ver carrinho".
-- O botão central da barra mobile abre a busca, porque o ícone do Figma não tem um fluxo no escopo.
-- Criadores, Aprenda, Atividade, Ofertas, Arquivos baixados, Suporte, Central de ajuda, Minha coleção, Estúdio do criador e "Esqueceu a senha?" aparecem desabilitados, com o aviso "Em breve".
+- O botão central da barra mobile abre a busca, porque o ícone do Figma não leva a nenhuma tela que existe no projeto.
+- Deixei Criadores, Aprenda, Atividade, Ofertas, Arquivos baixados, Suporte, Central de ajuda, Minha coleção, Estúdio do criador e "Esqueceu a senha?" visíveis para manter o layout, mas desabilitados e com o aviso "Em breve", porque essas telas não fazem parte do projeto.
 - Login com Google e Facebook avisa que não está disponível na demo.
 - "Ver no Etherscan" abre um aviso de que a transação é simulada, com o hash para copiar.
 - Compartilhar usa os links reais (LinkedIn, X e e-mail), o contato usa `mailto:` e `tel:`, e as redes sociais abrem em outra aba.
 - A newsletter tem um endpoint simulado e confirmação de verdade.
 - O perfil tem um único "Salvar", como no Figma. A senha só muda se os campos de senha forem preenchidos.
 - Os avisos de mudança no carrinho ficam 10 s na tela, mais que os outros, para dar tempo de ler.
-- No Figma o título do resumo do carrinho está "Resumo da carteira", o que parece engano, então usei "Resumo do pedido".
-- O carrinho no desktop mostra a edição de cada item, porque o estoque é por edição. No Figma só a versão mobile mostra.
-- O seletor de carteira cadastrada também aparece no pagamento desktop. No Figma ele só aparece no mobile.
-- Login e cadastro têm label visível acima dos campos. No Figma os campos só têm placeholder.
-- O rodapé usa 4 colunas a partir de 1280 px e 2 colunas abaixo disso, para os textos e a lista de carteiras caberem sem quebrar.
-- Medidas que não dava para ler nos prints foram aproximadas pela grade de 1200 px do layout.
-- Os cenários de teste ficam fora do layout, para não aparecer nada que não está no Figma. O modal abre com Ctrl + K (Cmd + K no Mac) ou com `?cenarios` na URL, e só existe com os mocks ligados.
+- No Figma o título do resumo do carrinho está "Resumo da carteira", o que me pareceu engano, então usei "Resumo do pedido".
+- Coloquei a edição de cada item no carrinho do desktop, porque o estoque é por edição. No Figma só a versão mobile mostra.
+- Mostrei o seletor de carteira cadastrada também no pagamento desktop. No Figma ele só aparece no mobile.
+- Coloquei label visível acima dos campos de login e cadastro. No Figma os campos só têm placeholder.
+- Deixei o rodapé com 4 colunas a partir de 1280 px e 2 colunas abaixo disso, para os textos e a lista de carteiras caberem sem quebrar.
+- Aproximei as medidas que não dava para ler nos prints pela grade de 1200 px do layout.
+- Tirei o painel de cenários de teste do layout para a tela ficar igual ao Figma. Ele abre com Ctrl + K (Cmd + K no Mac) ou com `?cenarios` na URL, e só existe com os mocks ligados.
 
 ---
 
-## Substituição de assets
+## Imagens, ícones e fonte
 
-As NFTs usam quatro artes de exemplo, convertidas para WebP em 320, 640 e 1024 px. As versões entregues ficam em `public/images/nfts/` (de 8 KB a 73 KB). Os PNG originais e os prints do Figma ficam fora do repositório.
+Não exportei as imagens individuais do Figma. No lugar, usei quatro artes de exemplo, convertidas para WebP em 320, 640 e 1024 px, que ficam em `public/images/nfts/` (de 8 KB a 73 KB). Os PNG originais e os prints do Figma ficam fora do repositório.
 
 Cada arte é uma família, como no Figma:
 
@@ -316,14 +316,14 @@ Cada arte é uma família, como no Figma:
 - gola alta e blazer: Neon Vessel e Ivory Baron;
 - fones: Golden Beat, Golden Rhythm e Golden Signal.
 
-A primeira página do catálogo e os banners seguem a distribuição dos prints. As NFTs geradas recebem a arte pelo nome (Ape, Nomad, Baron e Vessel, Beat, Signal e Echo); os outros nomes alternam entre as quatro. Os atributos acompanham a arte. As imagens individuais do Figma não foram exportadas.
+Distribuí as artes na primeira página do catálogo e nos banners do mesmo jeito que aparecem nos prints. As NFTs geradas recebem a arte pelo nome (Ape, Nomad, Baron e Vessel, Beat, Signal e Echo); os outros nomes alternam entre as quatro. Os atributos acompanham a arte.
 
 Outras trocas:
 
-- O logo "KURIO" é texto na fonte do layout.
-- O ícone "Thank you" do recibo virou o ícone `MailCheck` do Lucide.
-- Os ícones de marca (Google, Facebook, X, LinkedIn, Instagram e YouTube) vêm do `react-icons`, porque o Lucide não tem ícones de marca.
-- A fonte Roboto Mono é servida pelo próprio app (`@fontsource-variable/roboto-mono`), sem depender do Google Fonts.
+- Escrevi o logo "KURIO" como texto, na fonte do layout.
+- Troquei o ícone "Thank you" do recibo pelo `MailCheck` do Lucide.
+- Usei o `react-icons` para os ícones de marca (Google, Facebook, X, LinkedIn, Instagram e YouTube), porque o Lucide não tem ícones de marca.
+- Sirvo a fonte Roboto Mono pelo próprio app (`@fontsource-variable/roboto-mono`), sem depender do Google Fonts.
 
 ---
 
@@ -333,24 +333,24 @@ Outras trocas:
 - As edições do NFT são radios nativos.
 - Diálogos e gavetas prendem o foco e devolvem para quem os abriu.
 - Os erros dos formulários ficam ligados aos campos (`aria-describedby`, `aria-invalid` e `aria-required`), inclusive os que vêm da API.
-- Mutations e eventos em tempo real geram avisos em região `aria-live`.
-- Nenhum estado depende só de cor: edição esgotada aparece riscada e com aviso, e as pendências do carrinho têm texto.
+- Ações como adicionar ao carrinho e favoritar, e as mudanças em tempo real, geram avisos que o leitor de tela anuncia (`aria-live`).
+- Edição esgotada aparece riscada e com aviso, e as pendências do carrinho têm texto, não só cor.
 - Os skeletons com shimmer respeitam `prefers-reduced-motion`.
 - Os pontos dos carrosséis têm área de toque de 24 px, mas o ponto continua do tamanho do Figma.
 - A varredura axe (WCAG 2.1 A e AA) roda nos testes em todas as telas principais, e a responsividade também é testada em 320 px (equivalente a zoom de 400%).
 
-Ajustes em relação ao Figma:
+Onde mudei o Figma por acessibilidade:
 
-- O tom de texto secundário dos metadados (`#8b724d`, contraste de 4,2:1) foi trocado pelo secundário geral (`#a0896b`, 5,7:1).
-- O botão da conta tem o nome do usuário como nome acessível, em vez das iniciais.
-- O botão "Conectar e finalizar" bloqueado usa cores de inativo com contraste suficiente, em vez de só transparência.
+- Troquei o tom de texto secundário dos metadados (`#8b724d`, contraste de 4,2:1) pelo secundário geral (`#a0896b`, 5,7:1).
+- Dei ao botão da conta o nome do usuário como nome acessível, em vez das iniciais.
+- No botão "Conectar e finalizar" bloqueado, usei cores de inativo com contraste suficiente, em vez de só transparência.
 
 ---
 
 ## Performance
 
-- O layout da loja e o Início vêm no bundle principal. As outras rotas são divididas automaticamente pelo TanStack Router.
-- No build com mocks, um plugin do Vite pré-carrega o chunk do MSW junto com o JS principal.
+- Deixei o layout da loja e o Início no bundle principal. As outras rotas são divididas automaticamente pelo TanStack Router.
+- Criei um plugin do Vite que, no build com mocks, pré-carrega o chunk do MSW junto com o JS principal.
 - As imagens são WebP com `srcset` e tamanho fixo. Só a imagem do LCP (o primeiro card e o hero) tem prioridade alta, e o hero só é renderizado no layout que está na tela.
 - Os skeletons têm o mesmo tamanho do conteúdo, para não deslocar o layout.
 - Os devtools do TanStack só existem em desenvolvimento.
@@ -366,6 +366,6 @@ O resultado do Lighthouse e a explicação da nota mobile estão no [README](REA
 - O banco simulado fica no `localStorage`, que tem uns 5 MB por site. O avatar é salvo como data URL (até uns 1,4 MB). Se o espaço acabar, a gravação falha em silêncio e a mudança some no refresh. Com os limites atuais isso não acontece com os usuários da demo.
 - Os mocks dependem de service worker. Em navegadores ou janelas que bloqueiam service workers, as chamadas falham e a tela mostra o erro com "Tentar novamente".
 - Transações, links de explorador e conexão de carteira são simulados. Não tem integração com blockchain, extensão de carteira nem gateway de pagamento.
-- Um carrinho pode ter NFTs de redes diferentes. O pedido é pago com uma carteira e uma rede só, e a taxa soma uma tarifa por rede. Numa integração real, o checkout separaria o pedido por rede ou exigiria uma carteira para cada uma.
+- Um carrinho pode ter NFTs de redes diferentes. O pedido é pago com uma carteira e uma rede só, e a taxa soma uma tarifa por rede. Se fosse integrar com uma rede de verdade, eu separaria o pedido por rede ou pediria uma carteira para cada uma.
 - O `expiresAt` da cotação é só informativo. Quem garante que a cotação vale é a `version`, conferida de novo no envio do pedido.
 - Os baselines visuais foram gerados no Windows e dependem de como a plataforma renderiza as fontes.
