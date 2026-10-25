@@ -221,7 +221,7 @@ Todo cálculo usa `bigint` em wei (18 casas) em `core/money.ts`: soma, subtraç�
 
 ## Substituição de assets
 
-- As NFTs usam quatro artes de exemplo (`design/exemplo-nft.png` a `exemplo-nft4.png`), convertidas para WebP em 320, 640 e 1024 px (`public/images/nfts/`, de 8 KB a 73 KB). Cada arte forma uma família, como no Figma:
+- As NFTs usam quatro artes de exemplo, convertidas para WebP em 320, 640 e 1024 px. As versões entregues ficam em `public/images/nfts/` (de 8 KB a 73 KB); os PNG originais, assim como os prints do Figma, ficam fora do repositório. Cada arte forma uma família, como no Figma:
   - óculos e jaqueta verde: Emerald Ape;
   - chapéu e moletom roxo: Sage Nomad, Cosmic Bloom, Violet Nomad e o "NFT em destaque";
   - gola alta e blazer: Neon Vessel e Ivory Baron;
@@ -254,7 +254,7 @@ Todo cálculo usa `bigint` em wei (18 casas) em `core/money.ts`: soma, subtraç�
 
 - O layout da loja e o Início ficam no bundle principal; as demais rotas são divididas automaticamente pelo TanStack Router.
 - No build com mocks, um plugin do Vite adiciona `modulepreload` do chunk do MSW, para baixá-lo em paralelo com o JS principal.
-- Imagens WebP com `srcset`, dimensões fixas e prioridade alta para as primeiras imagens; skeletons com as mesmas dimensões do conteúdo.
+- Imagens WebP com `srcset`, dimensões fixas e prioridade alta só para a imagem do LCP (1º card e hero, renderizado apenas no layout ativo); skeletons com as mesmas dimensões do conteúdo.
 - Os devtools do TanStack só existem no desenvolvimento.
 
 A análise do Lighthouse e a justificativa do resultado mobile estão no [README](README.md#performance-lighthouse).

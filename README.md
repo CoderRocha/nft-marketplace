@@ -199,7 +199,7 @@ Todas as outras metas são atingidas (acessibilidade, boas práticas e SEO em 10
 
 Sob a rede e a CPU limitadas do perfil mobile, isso soma mais de 3 s antes de a imagem começar a carregar. O enunciado proíbe simplificações exclusivas para a auditoria, então os mocks e a latência foram mantidos. Com uma API real, esses três custos deixam de existir.
 
-Otimizações aplicadas: rota inicial e layout da loja no bundle principal (sem segunda ida à rede para chunks), preload do chunk do MSW em paralelo com o JS principal, imagens WebP com `srcset`, prioridade alta para as primeiras imagens, fonte self-hosted com `font-display: swap`, área principal com altura mínima para evitar deslocamento do rodapé (o CLS do detalhe desktop caiu de 0,155 para 0,002).
+Otimizações aplicadas: rota inicial e layout da loja no bundle principal (sem segunda ida à rede para chunks), preload do chunk do MSW em paralelo com o JS principal, imagens WebP com `srcset`, prioridade alta só para a imagem do LCP (o hero só é renderizado no layout ativo, para o mobile não baixar a imagem escondida do desktop), fonte self-hosted com `font-display: swap`, área principal com altura mínima para evitar deslocamento do rodapé (o CLS do detalhe desktop caiu de 0,155 para 0,002).
 
 Avaliado e descartado: trocar o `tldts` pela variante `tldts-icann` por alias de build economizaria cerca de 19 KB gzip, algo como 0,1 s no perfil mobile. Isso não muda a conclusão e exigiria alterar uma dependência interna do MSW, então ficou de fora.
 
