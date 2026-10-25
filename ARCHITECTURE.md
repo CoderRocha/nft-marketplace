@@ -221,7 +221,13 @@ Todo cálculo usa `bigint` em wei (18 casas) em `core/money.ts`: soma, subtraç�
 
 ## Substituição de assets
 
-- Todas as NFTs usam a mesma arte de exemplo (`design/exemplo-nft.png`), convertida para WebP em 320, 640 e 1024 px (`public/images/nfts/`, de 10 KB a 56 KB). As imagens individuais do Figma não foram exportadas.
+- As NFTs usam quatro artes de exemplo (`design/exemplo-nft.png` a `exemplo-nft4.png`), convertidas para WebP em 320, 640 e 1024 px (`public/images/nfts/`, de 8 KB a 73 KB). Cada arte forma uma família, como no Figma:
+  - óculos e jaqueta verde: Emerald Ape;
+  - chapéu e moletom roxo: Sage Nomad, Cosmic Bloom, Violet Nomad e o "NFT em destaque";
+  - gola alta e blazer: Neon Vessel e Ivory Baron;
+  - fones: Golden Beat, Golden Rhythm e Golden Signal.
+- A primeira página do catálogo e os banners promocionais seguem a distribuição dos prints do Figma.
+- As NFTs geradas ganham a arte pelo nome (Ape, Nomad, Baron e Vessel, Beat, Signal e Echo) ou, nos outros nomes, em ciclo. Os atributos vêm do conjunto de cada arte. As imagens individuais do Figma não foram exportadas.
 - O logo "KURIO" é texto na fonte do layout.
 - O ícone "Thank you" do recibo foi substituído pelo ícone `MailCheck` do Lucide.
 - Ícones de marca (Google, Facebook, X, LinkedIn, Instagram, YouTube) vêm do `react-icons`; o Lucide 1.x não tem ícones de marca.
