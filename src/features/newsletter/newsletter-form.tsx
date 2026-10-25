@@ -31,7 +31,7 @@ export const NewsletterForm = () => {
         }}
       >
         <form.AppForm>
-          <div className="flex-1">
+          <div className="flex-1 [&_input]:placeholder:text-[0.6875rem]">
             <form.AppField name="email">
               {(field) => (
                 <field.TextField

@@ -193,9 +193,9 @@ const FooterColumn = ({ title, children }: { title: string; children: ReactNode 
 
 const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'newsletter' | 'devTools'> & { className?: string }) => (
   <footer className={cn('mx-auto mt-20 w-full max-w-shop px-4 md:px-6', className)}>
-    <div className="grid gap-8 bg-card px-6 py-8 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
+    <div className="grid gap-8 bg-card px-6 py-8 md:grid-cols-2 lg:px-8 xl:grid-cols-4">
       {HIGHLIGHTS.map((highlight) => (
-        <section key={highlight.letter} className="flex flex-col gap-3 lg:border-r lg:border-primary/60 lg:pr-6">
+        <section key={highlight.letter} className="flex flex-col gap-3 xl:border-r xl:border-primary/60 xl:pr-6">
           <span
             aria-hidden="true"
             className="flex size-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground"
@@ -218,7 +218,7 @@ const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'news
         +55 11 4002 8922
       </a>
     </div>
-    <div className="grid gap-8 bg-card px-6 py-8 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+    <div className="grid gap-8 bg-card px-6 py-8 sm:grid-cols-2 lg:px-8 xl:grid-cols-4">
       <FooterColumn title="Meu perfil">
         <li>
           <Link to="/profile" className={footerLinkClassName}>
@@ -277,7 +277,7 @@ const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'news
         </div>
         <div className="flex flex-col gap-3">
           <h2 className="text-base font-semibold">Carteiras compatíveis</h2>
-          <p className="w-fit rounded-sm border border-border bg-band px-3 py-1.5 text-[0.625rem] font-bold tracking-wider text-primary">
+          <p className="w-fit rounded-sm border border-border bg-band px-2.5 py-1.5 text-[0.625rem] font-bold tracking-wide text-primary sm:whitespace-nowrap">
             METAMASK · WALLETCONNECT · COINBASE
           </p>
         </div>
