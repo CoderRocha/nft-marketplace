@@ -34,11 +34,10 @@ const ProfileFormFields = ({ userId, profile }: { userId: string; profile: Profi
         ensName: values.ensName,
         walletNickname: values.walletNickname,
       })
+      toast.success('Perfil atualizado.')
       if (values.newPassword) {
         await password.mutateAsync({ currentPassword: values.currentPassword, newPassword: values.newPassword })
-        toast.success('Perfil e senha atualizados.')
-      } else {
-        toast.success('Perfil atualizado.')
+        toast.success('Senha alterada.')
       }
       form.reset(toFormValues(saved))
     }),

@@ -42,10 +42,11 @@ test.describe('Perfil e carteiras', () => {
     await page.getByLabel('Confirmar nova senha', { exact: true }).fill('NovaSenha@1')
     await save(page)
     await expect(page.getByText('A senha atual está incorreta.')).toBeVisible()
+    await expect(page.getByText('Perfil atualizado.')).toBeVisible()
 
     await page.getByLabel('Senha atual', { exact: true }).fill('Senha@123')
     await save(page)
-    await expect(page.getByText('Perfil e senha atualizados.')).toBeVisible()
+    await expect(page.getByText('Senha alterada.')).toBeVisible()
 
     const login = await mocks.api({ method: 'POST', path: '/auth/login', body: { email: 'ana@kurio.dev', password: 'NovaSenha@1' } })
     expect(login.status).toBe(200)
