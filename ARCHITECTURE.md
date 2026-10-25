@@ -295,6 +295,7 @@ Outras decisões:
 - A newsletter tem um endpoint simulado e confirmação de verdade.
 - O perfil tem um único "Salvar", como no Figma. A senha só muda se os campos de senha forem preenchidos.
 - Os avisos de mudança no carrinho ficam 10 s na tela, mais que os outros, para dar tempo de ler.
+- Os cenários de teste ficam fora do layout, para não aparecer nada que não está no Figma. O modal abre com Ctrl + K (Cmd + K no Mac) ou com `?cenarios` na URL, e só existe com os mocks ligados.
 
 ---
 

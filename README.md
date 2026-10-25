@@ -36,7 +36,7 @@ O Kurio cobre os fluxos de descoberta, compra e conta de um colecionador de NFTs
 
 Não existe backend. A API REST e o Socket.IO são simulados no navegador com MSW, então o projeto roda a partir de um checkout limpo, e a mesma camada de mocks é usada no desenvolvimento, nos testes e na demo publicada.
 
-As decisões de arquitetura, os contratos da API, as políticas de sessão, carrinho e cache, o tempo real e os desvios do Figma estão no [ARCHITECTURE.md](ARCHITECTURE.md).
+As decisões de arquitetura, os contratos da API, as políticas de sessão, carrinho e cache e o tempo real estão no [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
@@ -165,8 +165,9 @@ Nos cenários de falha do catálogo, o mock falha 3 vezes de propósito: a chama
 
 **Como trocar de cenário**
 
-- Pelo link **"Cenários de teste"** no rodapé, que só aparece com os mocks ligados.
-- Pela URL, em qualquer página: `http://localhost:3000/?cenario=erro-503`
+- Apertando **Ctrl + K** (ou **Cmd + K** no Mac) em qualquer tela. Abre o modal de cenários, com Aplicar, Cancelar e Restaurar dados. Só existe com os mocks ligados.
+- No celular, que não tem atalho, abra qualquer página com `?cenarios` no fim da URL para abrir o mesmo modal.
+- Direto pela URL, em qualquer página: `http://localhost:3000/?cenario=erro-503`
 - Pela API de controle, que só existe no mock:
 
 ```js
@@ -175,7 +176,7 @@ fetch('/api/__mocks/scenario', { method: 'PUT', body: JSON.stringify({ scenario:
 
 **Como restaurar os dados**
 
-Use "Restaurar dados e recarregar" no painel de cenários, ou:
+Use "Restaurar dados" no modal de cenários, ou:
 
 ```js
 fetch('/api/__mocks/reset', { method: 'POST', body: JSON.stringify({ scenario: 'padrao' }) })
@@ -288,6 +289,7 @@ O que cada arquivo cobre:
 - `10-realtime-resilience` - eventos duplicados e antigos, queda de conexão e pedido pendente
 - `11-a11y` - varredura axe, teclado, foco em diálogos e erros nos campos
 - `12-loading` - skeletons, falha e nova tentativa
+- `13-scenarios` - modal de cenários pelo Ctrl + K e pela URL, com aplicar, cancelar e restaurar
 - `visual` - regressão visual de Início, detalhe, carrinho e pagamento
 - `responsive` - sem overflow horizontal em todas as telas
 
