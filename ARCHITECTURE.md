@@ -257,6 +257,8 @@ A análise do Lighthouse e a justificativa do resultado mobile estão no [README
 
 - A camada de mocks roda no navegador: cada aba tem sua própria instância do banco simulado, sincronizada apenas pelo `localStorage` ao recarregar.
 - Eventos em tempo real só alcançam abas conectadas ao mesmo worker do MSW, ou seja, a própria aba.
+- O banco simulado fica no `localStorage`, limitado a cerca de 5 MB por origem. O avatar é guardado como data URL (até cerca de 1,4 MB para o limite de 1 MB do arquivo). Se a cota estourar, a gravação falha em silêncio e a mudança some no refresh. Com os limites atuais, isso não acontece com os usuários de demonstração.
+- Os mocks dependem de service worker. Em navegadores ou janelas que bloqueiam service workers, as chamadas falham e a interface mostra o estado de erro com "Tentar novamente".
 - Transações, links de explorador e conexão de carteira são simulados; não há integração com blockchain, extensões de carteira ou gateways de pagamento.
 - Um carrinho pode misturar NFTs de redes diferentes. O pedido é pago com uma única carteira e rede, e a taxa de rede soma uma tarifa por rede distinta dos itens. Numa integração real, o checkout separaria o pedido por rede ou exigiria uma carteira compatível com cada uma.
 - O `expiresAt` da cotação é informativo; a validade é garantida pela `version` revalidada no envio do pedido.
