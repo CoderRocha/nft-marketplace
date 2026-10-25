@@ -182,12 +182,12 @@ Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build de
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | `/` | **67** | 100 | 100 | 100 | 5,24 s | 0,031 | 226 ms |
-| mobile | `/nfts/emerald-ape-042` | **68** | 100 | 100 | 100 | 5,14 s | 0,000 | 169 ms |
-| desktop | `/` | 97 | 100 | 100 | 100 | 1,11 s | 0,006 | 0 ms |
-| desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,10 s | 0,002 | 0 ms |
+| mobile | `/` | **68** | 100 | 100 | 100 | 5,01 s | 0,031 | 200 ms |
+| mobile | `/nfts/emerald-ape-042` | **67** | 100 | 100 | 100 | 5,16 s | 0,000 | 186 ms |
+| desktop | `/` | 97 | 100 | 100 | 100 | 1,10 s | 0,006 | 0 ms |
+| desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,09 s | 0,002 | 0 ms |
 
-Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). A nota de performance mobile varia com a carga da máquina, porque o Lighthouse escala o tempo de CPU observado. Nesta execução o benchmark index foi 2235. Numa execução anterior, com benchmark index de 2577 e uma única arte de NFT, a nota foi 74 e 73, com LCP de 4,6 s.
+Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). Nesta execução o benchmark index foi 2523. A nota de performance mobile varia com a carga da máquina, porque o Lighthouse escala o tempo de CPU observado. Com uma única arte de NFT (benchmark index de 2577), a nota era 74 e 73, com LCP de 4,6 s; as quatro artes acrescentam downloads de imagem na primeira tela (a Home e o carrossel de relacionados do detalhe deixaram de reaproveitar um único arquivo em cache). Priorizar só a imagem do LCP e não baixar a imagem escondida do hero recuperou parte disso (LCP da Home de 5,18 s para 5,01 s).
 
 ### Por que a performance mobile fica abaixo de 90
 
