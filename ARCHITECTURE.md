@@ -295,6 +295,12 @@ Outras decisões:
 - A newsletter tem um endpoint simulado e confirmação de verdade.
 - O perfil tem um único "Salvar", como no Figma. A senha só muda se os campos de senha forem preenchidos.
 - Os avisos de mudança no carrinho ficam 10 s na tela, mais que os outros, para dar tempo de ler.
+- No Figma o título do resumo do carrinho está "Resumo da carteira", o que parece engano, então usei "Resumo do pedido".
+- O carrinho no desktop mostra a edição de cada item, porque o estoque é por edição. No Figma só a versão mobile mostra.
+- O seletor de carteira cadastrada também aparece no pagamento desktop. No Figma ele só aparece no mobile.
+- Login e cadastro têm label visível acima dos campos. No Figma os campos só têm placeholder.
+- O rodapé usa 4 colunas a partir de 1280 px e 2 colunas abaixo disso, para os textos e a lista de carteiras caberem sem quebrar.
+- Medidas que não dava para ler nos prints foram aproximadas pela grade de 1200 px do layout.
 - Os cenários de teste ficam fora do layout, para não aparecer nada que não está no Figma. O modal abre com Ctrl + K (Cmd + K no Mac) ou com `?cenarios` na URL, e só existe com os mocks ligados.
 
 ---
