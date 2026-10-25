@@ -127,7 +127,7 @@ Detalhes e limitações:
 - **Recuperação após refresh:** a query de sessão (`staleTime: Infinity`) consulta `GET /auth/session` se houver token; um 401 apaga o token e devolve "sem sessão".
 - **Rotas privadas:** checkout, perfil, carteiras, favoritos e pedidos passam por um único guard (`requireSession`), que redireciona ao login com `redirect` para a rota original. Após o login, o usuário volta ao destino.
 - **Expiração durante a navegação:** qualquer 401 de uma chamada que levava token encerra a sessão. Se a página atual é privada, o app leva ao login com `redirect` e `motivo=expirada`; em página pública, só avisa. O rascunho do formulário de pagamento é salvo por usuário no `sessionStorage` a cada mudança e volta ao retornar com o mesmo usuário.
-- **Logout e troca de usuário:** cancelam e removem do cache tudo que é privado (perfil, carteiras, favoritos, pedidos, carrinho e cotação), descartam o id de carrinho de visitante e fecham o socket, que reconecta com o token novo. As chaves de dados privados incluem o `userId`, e o cliente ignora eventos cujo `userId` não é o da sessão atual.
+- **Logout e troca de usuário:** cancelam e removem do cache tudo que é privado (perfil, carteiras, favoritos, pedidos, carrinho e cotação), descartam o id de carrinho de visitante e fecham o socket. O logout explícito também apaga o rascunho do checkout guardado no `sessionStorage`; a tentativa de idempotência fica, porque não tem dados pessoais e evita uma compra duplicada se houver pedido pendente. O socket reconecta com o token novo. As chaves de dados privados incluem o `userId`, e o cliente ignora eventos cujo `userId` não é o da sessão atual.
 - **Senhas:** o mock guarda apenas hash SHA-256 com salt; nenhuma senha é guardada no cliente.
 
 ## Carrinho
@@ -258,6 +258,7 @@ A análise do Lighthouse e a justificativa do resultado mobile estão no [README
 - A camada de mocks roda no navegador: cada aba tem sua própria instância do banco simulado, sincronizada apenas pelo `localStorage` ao recarregar.
 - Eventos em tempo real só alcançam abas conectadas ao mesmo worker do MSW, ou seja, a própria aba.
 - Transações, links de explorador e conexão de carteira são simulados; não há integração com blockchain, extensões de carteira ou gateways de pagamento.
+- Um carrinho pode misturar NFTs de redes diferentes. O pedido é pago com uma única carteira e rede, e a taxa de rede soma uma tarifa por rede distinta dos itens. Numa integração real, o checkout separaria o pedido por rede ou exigiria uma carteira compatível com cada uma.
 - O `expiresAt` da cotação é informativo; a validade é garantida pela `version` revalidada no envio do pedido.
 - Os baselines visuais foram gerados no Windows e dependem da renderização de fontes da plataforma.
 - O deploy na Vercel está pendente.
