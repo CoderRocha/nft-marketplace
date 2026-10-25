@@ -182,16 +182,16 @@ Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build de
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | `/` | **71** | 100 | 100 | 100 | 4,62 s | 0,031 | 181 ms |
-| mobile | `/nfts/emerald-ape-042` | **68** | 100 | 100 | 100 | 4,64 s | 0,000 | 269 ms |
-| desktop | `/` | 98 | 100 | 100 | 100 | 1,03 s | 0,006 | 3 ms |
-| desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,03 s | 0,002 | 3 ms |
+| mobile | `/` | **67** | 100 | 100 | 100 | 5,24 s | 0,031 | 226 ms |
+| mobile | `/nfts/emerald-ape-042` | **68** | 100 | 100 | 100 | 5,14 s | 0,000 | 169 ms |
+| desktop | `/` | 97 | 100 | 100 | 100 | 1,11 s | 0,006 | 0 ms |
+| desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,10 s | 0,002 | 0 ms |
 
-Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). A nota de performance varia com a carga da máquina: nesta execução o benchmark index foi 2093, contra 2577 numa execução anterior (74 e 73 no mobile, TBT de 52 e 15 ms). O LCP, que define o resultado, ficou em cerca de 4,6 s nas duas.
+Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). A nota de performance mobile varia com a carga da máquina, porque o Lighthouse escala o tempo de CPU observado. Nesta execução o benchmark index foi 2235. Numa execução anterior, com benchmark index de 2577 e uma única arte de NFT, a nota foi 74 e 73, com LCP de 4,6 s.
 
 ### Por que a performance mobile fica abaixo de 90
 
-Todas as outras metas são atingidas (acessibilidade, boas práticas e SEO em 100), e o mesmo build tira 97 e 98 no desktop. No mobile, o LCP (cerca de 4,6 s) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
+Todas as outras metas são atingidas (acessibilidade, boas práticas e SEO em 100), e o mesmo build tira 97 no desktop. No mobile, o LCP (entre 4,6 e 5,2 s, conforme a execução) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
 
 1. **Service worker do MSW:** o worker precisa ser registrado e ativado antes de qualquer chamada, e o Lighthouse sempre mede com o perfil limpo, então paga esse custo em toda execução.
 2. **Peso do código de mocks:** cerca de 168 KB gzip no caminho crítico, além dos cerca de 205 KB gzip da aplicação. Só o `tldts`, usado pelo `tough-cookie` dentro do MSW para a lista de sufixos públicos, ocupa cerca de 47 KB gzip.
