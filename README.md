@@ -180,16 +180,16 @@ Auditoria de Início e detalhe do NFT, perfis mobile e desktop, sobre o build de
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | `/` | **74** | 96 | 100 | 92 | 4,54 s | 0,031 | 52 ms |
-| mobile | `/nfts/emerald-ape-042` | **73** | 97 | 100 | 92 | 4,64 s | 0,000 | 15 ms |
-| desktop | `/` | 98 | 96 | 100 | 92 | 0,96 s | 0,006 | 0 ms |
-| desktop | `/nfts/emerald-ape-042` | 98 | 97 | 100 | 92 | 0,95 s | 0,002 | 0 ms |
+| mobile | `/` | **71** | 100 | 100 | 100 | 4,62 s | 0,031 | 181 ms |
+| mobile | `/nfts/emerald-ape-042` | **68** | 100 | 100 | 100 | 4,64 s | 0,000 | 269 ms |
+| desktop | `/` | 98 | 100 | 100 | 100 | 1,03 s | 0,006 | 3 ms |
+| desktop | `/nfts/emerald-ape-042` | 97 | 100 | 100 | 100 | 1,03 s | 0,002 | 3 ms |
 
-Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x).
+Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows 11, throttling padrão do perfil mobile (RTT 150 ms, 1,6 Mbps, CPU 4x). A nota de performance varia com a carga da máquina: nesta execução o benchmark index foi 2093, contra 2577 numa execução anterior (74 e 73 no mobile, TBT de 52 e 15 ms). O LCP, que define o resultado, ficou em cerca de 4,6 s nas duas.
 
 ### Por que a performance mobile fica abaixo de 90
 
-Todas as outras metas são atingidas, e o mesmo build tira 98 no desktop. No mobile, o LCP (cerca de 4,6 s) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
+Todas as outras metas são atingidas (acessibilidade, boas práticas e SEO em 100), e o mesmo build tira 97 e 98 no desktop. No mobile, o LCP (cerca de 4,6 s) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
 
 1. **Service worker do MSW:** o worker precisa ser registrado e ativado antes de qualquer chamada, e o Lighthouse sempre mede com o perfil limpo, então paga esse custo em toda execução.
 2. **Peso do código de mocks:** cerca de 168 KB gzip no caminho crítico, além dos cerca de 205 KB gzip da aplicação. Só o `tldts`, usado pelo `tough-cookie` dentro do MSW para a lista de sufixos públicos, ocupa cerca de 47 KB gzip.
