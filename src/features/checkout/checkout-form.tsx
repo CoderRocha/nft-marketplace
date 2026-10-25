@@ -63,8 +63,13 @@ type CheckoutFormProps = {
 export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChange }: CheckoutFormProps) => {
   const queryClient = useQueryClient()
   const owner = useCartOwner()
-  const initialSource: WalletSource = wallets.primary ? 'primary' : wallets.secondary ? 'secondary' : 'custom'
-  const [walletSource, setWalletSource] = useState<WalletSource>(initialSource)
+  const registeredSource: WalletSource = wallets.primary ? 'primary' : wallets.secondary ? 'secondary' : 'custom'
+  const walletFor = (source: WalletSource): Wallet | null =>
+    source === 'primary' ? wallets.primary : source === 'secondary' ? wallets.secondary : null
+  const defaultValues = mergeDraft(collectorDefaults(profile, walletFor(registeredSource)), readDraft(userId))
+  const restoredSource: WalletSource =
+    (['primary', 'secondary'] as const).find((source) => walletFor(source)?.address === defaultValues.address) ?? 'custom'
+  const [walletSource, setWalletSource] = useState<WalletSource>(restoredSource)
   const [connectionError, setConnectionError] = useState<string | null>(null)
   const [review, setReview] = useState<CheckoutReview | null>(null)
   const [orderError, setOrderError] = useState<string | null>(null)
@@ -73,11 +78,8 @@ export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChang
   const { placeOrder, verifying } = usePlaceOrder(userId)
   const quote = useQuote(cart)
 
-  const walletFor = (source: WalletSource): Wallet | null =>
-    source === 'primary' ? wallets.primary : source === 'secondary' ? wallets.secondary : null
-
   const form = useAppForm({
-    defaultValues: mergeDraft(collectorDefaults(profile, walletFor(initialSource)), readDraft(userId)),
+    defaultValues,
     ...schemaValidation(collectorFormSchema),
     listeners: {
       onChange: ({ formApi }) => {
@@ -209,7 +211,7 @@ export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChang
             <Checkbox
               checked={walletSource === 'custom'}
               onCheckedChange={(checked) => {
-                const source: WalletSource = checked ? 'custom' : initialSource
+                const source: WalletSource = checked ? 'custom' : registeredSource
                 selectWallet(source, walletFor(source))
               }}
             />

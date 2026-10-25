@@ -96,6 +96,36 @@ test.describe('Conta e sessão', () => {
     await expect(note).toHaveValue('Enviar para a carteira fria')
   })
 
+  test('outra carteira preenchida no checkout volta selecionada após a expiração', async ({ page, mocks }) => {
+    const address = '0x1111111111111111111111111111111111111111'
+    await mocks.boot()
+    await mocks.loginAs('ana')
+    await buyFromDetail(page)
+    await goToCheckout(page)
+    const otherWallet = page.getByRole('checkbox', { name: 'Usar outra carteira?' })
+    await otherWallet.click()
+    await page.getByRole('combobox', { name: /^Rede/ }).click()
+    await page.getByRole('option', { name: 'Ethereum' }).click()
+    await page.getByRole('combobox', { name: /^Tipo de carteira/ }).click()
+    await page.getByRole('option', { name: 'MetaMask' }).click()
+    await page.getByRole('textbox', { name: 'Endereço da carteira' }).fill(address)
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (expected) => Object.keys(sessionStorage).some((key) => key.startsWith('kurio:checkout-draft') && (sessionStorage.getItem(key) ?? '').includes(expected)),
+          address,
+        ),
+      )
+      .toBe(true)
+    await mocks.expireSession()
+    await page.getByRole('button', { name: 'Conectar carteira' }).click()
+    await expect(page).toHaveURL(/\/login\?.*motivo=expirada/)
+    await signInThroughForm(page, 'ana')
+    await expect(page).toHaveURL(/\/checkout/)
+    await expect(page.getByRole('textbox', { name: 'Endereço da carteira' })).toHaveValue(address)
+    await expect(otherWallet).toBeChecked()
+  })
+
   test('logout apaga o rascunho do checkout do navegador', async ({ page, mocks }) => {
     await mocks.boot()
     await mocks.loginAs('ana')
