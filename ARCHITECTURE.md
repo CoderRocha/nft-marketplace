@@ -299,16 +299,6 @@ Outras decisões:
 
 ---
 
-## Desvios do Figma
-
-- No Figma o título do resumo do carrinho está "Resumo da carteira", o que parece engano, então usei "Resumo do pedido".
-- O carrinho no desktop mostra a edição de cada item, porque o estoque é por edição.
-- O seletor de carteira cadastrada também aparece no pagamento desktop. No Figma ele só aparece no mobile.
-- Login e cadastro têm label visível acima dos campos. No Figma os campos só têm placeholder.
-- Medidas que não dava para ler nos prints foram aproximadas pela grade de 1200 px do layout.
-
----
-
 ## Substituição de assets
 
 As NFTs usam quatro artes de exemplo, convertidas para WebP em 320, 640 e 1024 px. As versões entregues ficam em `public/images/nfts/` (de 8 KB a 73 KB). Os PNG originais e os prints do Figma ficam fora do repositório.
