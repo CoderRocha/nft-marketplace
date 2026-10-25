@@ -32,13 +32,25 @@ export const NftGridSkeleton = ({ count }: { count: number }) => (
   </div>
 )
 
-export const NftGridEmpty = ({ onClear }: { onClear: () => void }) => (
+type NftGridEmptyProps = {
+  onAction: () => void
+  title?: string
+  description?: string
+  actionLabel?: string
+}
+
+export const NftGridEmpty = ({
+  onAction,
+  title = 'Nenhum NFT encontrado',
+  description = 'Tente outra busca ou remova alguns filtros para ver mais resultados.',
+  actionLabel = 'Limpar filtros',
+}: NftGridEmptyProps) => (
   <div className="flex flex-col items-center gap-3 rounded-md bg-card px-6 py-12 text-center">
     <SearchXIcon aria-hidden="true" className="size-8 text-primary" />
-    <p className="text-base font-semibold">Nenhum NFT encontrado</p>
-    <p className="max-w-sm text-[0.8125rem] text-muted-foreground">Tente outra busca ou remova alguns filtros para ver mais resultados.</p>
-    <Button variant="outline" onClick={onClear}>
-      Limpar filtros
+    <p className="text-base font-semibold">{title}</p>
+    <p className="max-w-sm text-[0.8125rem] text-muted-foreground">{description}</p>
+    <Button variant="outline" onClick={onAction}>
+      {actionLabel}
     </Button>
   </div>
 )

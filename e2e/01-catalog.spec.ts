@@ -60,6 +60,15 @@ test.describe('Catálogo', () => {
     await expect(catalogCards(page)).toHaveCount(9)
   })
 
+  test('página fora do intervalo avisa e volta para a primeira página', async ({ page, mocks }) => {
+    await mocks.boot('padrao', '/?pagina=99')
+    await expect(page.getByText('Esta página não existe')).toBeVisible()
+    await expect(page.getByText('Nenhum NFT encontrado')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Ir para a primeira página' }).click()
+    await expect(page).not.toHaveURL(/pagina=/)
+    await expect(catalogCards(page)).toHaveCount(9)
+  })
+
   test('resposta antiga que chega depois não substitui a busca mais recente', async ({ page, mocks }) => {
     await mocks.boot('fora-de-ordem')
     await expect(catalogCards(page)).toHaveCount(9)

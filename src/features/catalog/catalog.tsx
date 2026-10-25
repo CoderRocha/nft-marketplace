@@ -43,10 +43,22 @@ export const Catalog = ({ search, onSearchChange }: CatalogProps) => {
         />
       )
     }
+    if (list.data.items.length === 0 && pageCount > 0) {
+      return (
+        <NftGridEmpty
+          title="Esta página não existe"
+          description={`O resultado tem ${pageCount} ${pageCount === 1 ? 'página' : 'páginas'}. Volte para o início da lista.`}
+          actionLabel="Ir para a primeira página"
+          onAction={() => {
+            onSearchChange({ pagina: 1 })
+          }}
+        />
+      )
+    }
     if (list.data.items.length === 0) {
       return (
         <NftGridEmpty
-          onClear={() => {
+          onAction={() => {
             onSearchChange(catalogSearchDefaults)
           }}
         />
