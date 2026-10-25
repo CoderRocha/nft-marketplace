@@ -34,6 +34,37 @@ test.describe('API simulada pelo MSW', () => {
     expect(invalid.status).toBe(422)
   })
 
+  test('primeira página, destaques e artes seguem a distribuição do Figma', async ({ mocks }) => {
+    await mocks.boot()
+    const first = v.parse(nftPageSchema, (await mocks.api({ method: 'GET', path: '/nfts' })).body)
+    expect(first.items.map((nft) => nft.id)).toEqual([
+      'emerald-ape-042',
+      'sage-nomad-009',
+      'neon-vessel-552',
+      'cosmic-bloom-118',
+      'violet-nomad-314',
+      'ivory-baron-088',
+      'golden-beat-207',
+      'golden-rhythm-233',
+      'golden-signal-160',
+    ])
+    expect(first.items.map((nft) => nft.image.src.replace(/^\/images\/nfts\/|-640\.webp$/g, ''))).toEqual([
+      'exemplo-nft',
+      'exemplo-nft2',
+      'exemplo-nft3',
+      'exemplo-nft2',
+      'exemplo-nft2',
+      'exemplo-nft3',
+      'exemplo-nft4',
+      'exemplo-nft4',
+      'exemplo-nft4',
+    ])
+    const highlights = v.parse(nftHighlightsSchema, (await mocks.api({ method: 'GET', path: '/nfts/highlights' })).body)
+    expect(highlights.hero[0]?.id).toBe('emerald-ape-042')
+    expect(highlights.featured?.id).toBe('moss-nomad-021')
+    expect(highlights.featured?.image.src).toBe('/images/nfts/exemplo-nft2-640.webp')
+  })
+
   test('detalhe existe, edição esgotada e NFT inexistente', async ({ mocks }) => {
     await mocks.boot()
     const detail = v.parse(nftDetailSchema, (await mocks.api({ method: 'GET', path: '/nfts/emerald-ape-042' })).body)

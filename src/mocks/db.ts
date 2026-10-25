@@ -67,7 +67,7 @@ export type MockDb = {
   flags: ScenarioFlags
 }
 
-const STORAGE_KEY = 'kurio-mocks:v4'
+const STORAGE_KEY = 'kurio-mocks:v5'
 
 const seed = (): MockDb => ({
   scenario: 'padrao',

@@ -6,6 +6,7 @@ import { buttonVariants } from '@ui/button'
 type Banner = {
   title: string
   description: string
+  image: string
   search: Partial<CatalogSearch>
 }
 
@@ -13,11 +14,13 @@ const BANNERS: Banner[] = [
   {
     title: 'Lançamentos gênesis de edição limitada',
     description: 'Colecione edições escassas diretamente dos criadores antes da revelação pública.',
+    image: '/images/nfts/exemplo-nft-320.webp',
     search: { aba: 'lancamentos' },
   },
   {
     title: 'Arte digital selecionada e muito mais',
     description: 'Explore novos artistas, coleções verificadas e obras digitais que definem a cultura.',
+    image: '/images/nfts/exemplo-nft3-320.webp',
     search: { colecao: ['arte-digital'] },
   },
 ]
@@ -27,7 +30,7 @@ export const PromoBanners = () => (
     {BANNERS.map((banner) => (
       <article key={banner.title} className="flex items-stretch gap-4 bg-card">
         <img
-          src="/images/nfts/exemplo-nft-320.webp"
+          src={banner.image}
           alt=""
           width={320}
           height={320}
