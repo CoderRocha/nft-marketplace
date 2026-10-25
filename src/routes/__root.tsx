@@ -3,6 +3,7 @@ import { HeadContent, Link, Outlet, createRootRouteWithContext } from '@tanstack
 import { lazy, Suspense } from 'react'
 import { useRealtime } from '@core/realtime'
 import { useSession } from '@core/session'
+import { ScenarioDialog } from '@features/dev-scenarios/scenario-dialog'
 import { ErrorFallback } from '@pattern/widget-boundary'
 import { buttonVariants } from '@ui/button'
 import { Toaster } from '@ui/sonner'
@@ -26,6 +27,7 @@ const RootComponent = () => (
     </a>
     <Outlet />
     <Toaster position="top-center" />
+    <ScenarioDialog />
     <Suspense>
       <Devtools />
     </Suspense>

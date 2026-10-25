@@ -10,7 +10,6 @@ type ShopLayoutProps = {
   cartCount: number
   account: ReactNode
   newsletter: ReactNode
-  devTools: ReactNode
   onSearch: () => void
 }
 
@@ -191,7 +190,7 @@ const FooterColumn = ({ title, children }: { title: string; children: ReactNode 
   </div>
 )
 
-const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'newsletter' | 'devTools'> & { className?: string }) => (
+const Footer = ({ newsletter, className }: Pick<ShopLayoutProps, 'newsletter'> & { className?: string }) => (
   <footer className={cn('mx-auto mt-20 w-full max-w-shop px-4 md:px-6', className)}>
     <div className="grid gap-8 bg-card px-6 py-8 md:grid-cols-2 lg:px-8 xl:grid-cols-4">
       {HIGHLIGHTS.map((highlight) => (
@@ -285,12 +284,11 @@ const Footer = ({ newsletter, devTools, className }: Pick<ShopLayoutProps, 'news
     </div>
     <div className="flex flex-col items-center gap-2 py-4">
       <p className="text-center text-xs text-foreground/90">© 2026 Kurio. Propriedade digital para todos.</p>
-      {devTools}
     </div>
   </footer>
 )
 
-export const ShopLayout = ({ children, cartCount, account, newsletter, devTools, onSearch }: ShopLayoutProps) => {
+export const ShopLayout = ({ children, cartCount, account, newsletter, onSearch }: ShopLayoutProps) => {
   const { pathname } = useLocation()
   return (
     <div className="flex min-h-dvh flex-col pb-24 md:pb-0">
@@ -298,7 +296,7 @@ export const ShopLayout = ({ children, cartCount, account, newsletter, devTools,
       <main id="conteudo" tabIndex={-1} className="min-h-dvh flex-1 focus:outline-none">
         {children}
       </main>
-      <Footer newsletter={newsletter} devTools={devTools} className={AUTH_PATHS.includes(pathname) ? 'max-md:hidden' : undefined} />
+      <Footer newsletter={newsletter} className={AUTH_PATHS.includes(pathname) ? 'max-md:hidden' : undefined} />
       <MobileTabBar cartCount={cartCount} onSearch={onSearch} />
     </div>
   )

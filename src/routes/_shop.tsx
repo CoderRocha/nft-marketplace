@@ -3,7 +3,6 @@ import { useRef, useState } from 'react'
 import { AccountMenu } from '@features/auth/account-menu'
 import { useCart } from '@features/cart/hooks'
 import { SearchDialog } from '@features/catalog/search-dialog'
-import { ScenarioPanel } from '@features/dev-scenarios/scenario-panel'
 import { NewsletterForm } from '@features/newsletter/newsletter-form'
 import { ShopLayout } from '@layouts/shop-layout'
 
@@ -17,7 +16,6 @@ const ShopRoute = () => {
       cartCount={cart.data?.itemCount ?? 0}
       account={<AccountMenu />}
       newsletter={<NewsletterForm />}
-      devTools={<ScenarioPanel />}
       onSearch={() => {
         searchOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setSearchOpen(true)
