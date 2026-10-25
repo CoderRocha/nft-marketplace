@@ -103,7 +103,7 @@ Nos cenários de falha do catálogo, o mock falha três vezes de propósito: o T
 - **Pela API de controle** (só existe no mock, responde sem latência):
   - `PUT /api/__mocks/scenario` com `{ "scenario": "lento" }`
   - `POST /api/__mocks/reset` com `{ "scenario": "padrao" }`
-  - `POST /api/__mocks/failures` com `{ "method": "put", "path": "/me/favorites/:nftId", "kind": 500, "times": 1 }` injeta falhas pontuais em qualquer rota.
+  - `POST /api/__mocks/failures` com `{ "method": "put", "path": "/me/favorites/:nftId", "kind": 500, "times": 1 }` injeta falhas pontuais em qualquer rota. `kind` aceita um status HTTP (400 a 599), `offline` (falha de rede) ou `timeout` (a resposta nunca chega e o Axios aborta em 8 s).
 - Limpar os dados do site no navegador também restaura o seed.
 
 ## Reproduzindo os fluxos de falha
@@ -113,6 +113,7 @@ As chamadas `fetch` abaixo podem ser coladas no console do navegador com a aplic
 | Fluxo | Como reproduzir |
 | --- | --- |
 | Catálogo com falha e recuperação | Cenário `erro-503`, `erro-500` ou `offline`; abra o Início e clique em "Tentar novamente" quando o erro aparecer. |
+| Timeout de leitura | Rode `fetch('/api/__mocks/failures', { method: 'POST', body: JSON.stringify({ method: 'get', path: '/nfts/:id', kind: 'timeout', times: 1 }) })` e abra um NFT. A primeira chamada aborta em 8 s e o retry automático carrega o detalhe. |
 | Skeletons | Cenário `lento`; abra Início, detalhe ou carrinho. |
 | Resposta fora de ordem | Cenário `fora-de-ordem`; busque "gol" e logo depois "golden signal" pelo ícone de busca. O resultado final é sempre o da última busca. |
 | Catálogo vazio | Cenário `vazio`. |
@@ -145,6 +146,7 @@ npx playwright show-report
 | `desktop` | 1440 x 900 | Todos os specs. |
 | `mobile` | 390 x 844 | Fluxos principais (`@main`), regressão visual (`@visual`) e responsividade (`@responsive`). |
 | `tablet` | 768 x 1024 | Responsividade (`@responsive`). |
+| `reflow` | 320 x 640 | Responsividade (`@responsive`); equivale a 1280 px com zoom de 400% (WCAG 1.4.10). |
 
 | Spec | Cobertura |
 | --- | --- |
@@ -190,12 +192,14 @@ Ambiente: Lighthouse 12.6.1 via LHCI 0.15, Chrome 155 headless, Node 22, Windows
 Todas as outras metas são atingidas, e o mesmo build tira 98 no desktop. No mobile, o LCP (cerca de 4,6 s) é dominado pela fase "Load Delay" da imagem principal, que depende de dados da API. A cadeia até esses dados passa pela camada de mocks, que roda no navegador:
 
 1. **Service worker do MSW:** o worker precisa ser registrado e ativado antes de qualquer chamada, e o Lighthouse sempre mede com o perfil limpo, então paga esse custo em toda execução.
-2. **Peso do código de mocks:** cerca de 160 KB gzip no caminho crítico. Quase metade vem de dependências internas do MSW para cookies (`tldts`, com a lista de sufixos públicos, e `tough-cookie`).
+2. **Peso do código de mocks:** cerca de 168 KB gzip no caminho crítico, além dos cerca de 205 KB gzip da aplicação. Só o `tldts`, usado pelo `tough-cookie` dentro do MSW para a lista de sufixos públicos, ocupa cerca de 47 KB gzip.
 3. **Latência simulada:** 150 ms em cada chamada no cenário padrão (catálogo, destaques, carrinho).
 
 Sob a rede e a CPU limitadas do perfil mobile, isso soma mais de 3 s antes de a imagem começar a carregar. O enunciado proíbe simplificações exclusivas para a auditoria, então os mocks e a latência foram mantidos. Com uma API real, esses três custos deixam de existir.
 
 Otimizações aplicadas: rota inicial e layout da loja no bundle principal (sem segunda ida à rede para chunks), preload do chunk do MSW em paralelo com o JS principal, imagens WebP com `srcset`, prioridade alta para as primeiras imagens, fonte self-hosted com `font-display: swap`, área principal com altura mínima para evitar deslocamento do rodapé (o CLS do detalhe desktop caiu de 0,155 para 0,002).
+
+Avaliado e descartado: trocar o `tldts` pela variante `tldts-icann` por alias de build economizaria cerca de 19 KB gzip, algo como 0,1 s no perfil mobile. Isso não muda a conclusão e exigiria alterar uma dependência interna do MSW, então ficou de fora.
 
 ## Deploy
 

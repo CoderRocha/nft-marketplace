@@ -102,7 +102,7 @@ Todo evento traz um envelope comum e é validado no cliente com o schema de `con
 
 | Evento | Destino | Dados | Efeito no cliente |
 | --- | --- | --- | --- |
-| `nft.updated` | Todos (`userId: null`) | Estado novo do NFT e das edições | Atualiza detalhe, listas e favoritos; se o NFT está no carrinho, recarrega carrinho e cotação e avisa a mudança. |
+| `nft.updated` | Todos (`userId: null`) | Estado novo do NFT e das edições | Atualiza detalhe, listas e favoritos; se o NFT está no carrinho, recarrega carrinho e cotação e avisa a mudança. Com o detalhe aberto (e o NFT fora do carrinho), avisa a mudança de preço ou o esgotamento da edição. |
 | `order.updated` | Só o dono do pedido | Pedido completo | Atualiza o pedido; ao chegar a estado final, recarrega carrinho, cotação e catálogo e limpa a tentativa de checkout. |
 
 No mock, toda alteração de NFT (controle de teste, cenários de checkout, baixa de estoque na confirmação) e toda confirmação ou recusa de pedido passa por uma única função que grava no banco e publica o evento. Assim REST e eventos nunca divergem.
@@ -165,6 +165,7 @@ Detalhes e limitações:
 | Pedido pendente | Consulta a cada 5 s como fallback; o evento `order.updated` atualiza na hora. |
 
 - **Retries de leitura:** até 2 tentativas extras, só para falha de rede, timeout e 5xx. Respeitam `Retry-After` ou usam backoff exponencial de até 8 s. Erros 4xx e respostas fora do contrato não são repetidos.
+- **Falha em segundo plano:** se um refetch falha e a tela já tem dados (polling do pedido, reconciliação após reconexão, foco da janela), os dados continuam visíveis e o refetch seguinte recupera. O estado de erro com "Tentar novamente" só aparece quando a primeira carga falha (`isLoadingError`).
 - **Mutations:** sem retry automático. O único reenvio é o do pedido, com a mesma chave de idempotência.
 - **Atualização otimista com rollback:** favoritar e desfavoritar, quantidade no carrinho e remoção de item. Em erro, o estado anterior volta e a mensagem do servidor aparece.
 - **Respostas obsoletas:** o `AbortSignal` do TanStack Query é repassado ao Axios, e cada combinação de filtros tem chave própria. Uma resposta antiga nunca substitui a mais recente (há teste para o cenário `fora-de-ordem`).
@@ -240,7 +241,8 @@ Todo cálculo usa `bigint` em wei (18 casas) em `core/money.ts`: soma, subtraç�
   - O tom de texto secundário usado nos metadados do Figma (`#8b724d`, contraste de cerca de 4,2:1) foi trocado pelo secundário geral (`#a0896b`, 5,7:1).
   - O botão da conta tem nome acessível com o nome do usuário, em vez das iniciais.
   - O botão "Conectar e finalizar" bloqueado usa cores de inativo com contraste suficiente, em vez de opacidade.
-- **Verificação:** a varredura axe (WCAG 2.1 A e AA) roda nos testes para todas as telas principais.
+- **Verificação:** a varredura axe (WCAG 2.1 A e AA) roda nos testes para todas as telas principais, e a responsividade também é testada em 320 px de largura (equivalente a zoom de 400%).
+- **Alvos de toque:** os pontos dos carrosséis têm área clicável de 24 px, mantendo o ponto visual do Figma.
 
 ## Performance
 
