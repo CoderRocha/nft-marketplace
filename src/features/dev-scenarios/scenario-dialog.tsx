@@ -52,6 +52,7 @@ export const ScenarioDialog = () => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isShortcut(event)) return
       event.preventDefault()
+      if (busy) return
       if (open) setSelected(null)
       else returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
       setOpen(!open)
@@ -60,7 +61,7 @@ export const ScenarioDialog = () => {
     return () => {
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [open])
+  }, [open, busy])
 
   if (!MOCKS_ENABLED) return null
 
