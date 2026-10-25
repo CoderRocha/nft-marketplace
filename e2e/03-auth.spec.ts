@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 import { test, USERS, type DemoUser } from './fixtures'
+import { buyFromDetail, goToCheckout, openReview, startPurchase } from './flows'
 
 const authDialog = (page: Page) => page.getByRole('dialog')
 
@@ -66,6 +67,42 @@ test.describe('Conta e sessão', () => {
     await expect(page.getByText(/^Sua sessão expirou/)).toBeVisible()
     await signInThroughForm(page, 'ana')
     await expect(page).toHaveURL(/\/profile\/wallets/)
+  })
+
+  test('sessão expirada durante o checkout preserva os dados preenchidos', async ({ page, mocks }) => {
+    await mocks.boot()
+    await mocks.loginAs('ana')
+    await buyFromDetail(page)
+    await goToCheckout(page)
+    const note = page.getByRole('textbox', { name: 'Observação do colecionador (opcional)' })
+    await note.fill('Enviar para a carteira fria')
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Object.keys(sessionStorage).some(
+            (key) => key.startsWith('kurio:checkout-draft') && (sessionStorage.getItem(key) ?? '').includes('carteira fria'),
+          ),
+        ),
+      )
+      .toBe(true)
+    await mocks.expireSession()
+    await page.getByRole('button', { name: 'Conectar carteira' }).click()
+    await expect(page).toHaveURL(/\/login\?.*motivo=expirada/)
+    await signInThroughForm(page, 'ana')
+    await expect(page).toHaveURL(/\/checkout/)
+    await expect(note).toHaveValue('Enviar para a carteira fria')
+  })
+
+  test('pedido de outra conta não é exibido', async ({ page, mocks }) => {
+    await mocks.boot()
+    await startPurchase(page, mocks)
+    const review = await openReview(page)
+    await review.getByRole('button', { name: 'Confirmar e pagar' }).click()
+    await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
+    const orderPath = new URL(page.url()).pathname
+    await mocks.loginAs('bruno', orderPath)
+    await expect(page.getByRole('heading', { name: 'Pedido de outra conta' })).toBeVisible()
+    await expect(page.getByText('Seus NFTs agora estão na sua carteira')).toHaveCount(0)
   })
 
   test('sessão curta expira quando o relógio avança', async ({ page, mocks }) => {

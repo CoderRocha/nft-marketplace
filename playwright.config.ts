@@ -41,6 +41,12 @@ export default defineConfig({
       grep: /@responsive/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
     },
+    {
+      name: 'reflow',
+      testMatch: /.*\.spec\.ts/,
+      grep: /@responsive/,
+      use: { ...devices['Pixel 7'], viewport: { width: 320, height: 640 } },
+    },
   ],
   webServer: unitOnly
     ? undefined
