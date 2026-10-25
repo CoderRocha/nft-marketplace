@@ -4,4 +4,6 @@
 *.html diff=html
 *.md diff=markdown
 
-*.css linguist-vendored
+lighthouse/reports/** linguist-generated
+src/routeTree.gen.ts linguist-generated
+public/mockServiceWorker.js linguist-vendored
