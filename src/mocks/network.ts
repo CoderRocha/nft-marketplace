@@ -42,8 +42,12 @@ const INJECTED_CODES: Record<number, ApiErrorCode> = {
   503: 'transient',
 }
 
-const injectedFailure = (rule: FailureRule) => {
+const injectedFailure = async (rule: FailureRule) => {
   if (rule.kind === 'offline') return HttpResponse.error()
+  if (rule.kind === 'timeout') {
+    await delay('infinite')
+    return HttpResponse.error()
+  }
   return problem({
     status: rule.kind,
     code: INJECTED_CODES[rule.kind] ?? 'internal',

@@ -92,6 +92,10 @@ export const publishOrderUpdated = (order: OrderRecord) => {
   publish(event)
 }
 
+export const clearEventLog = () => {
+  eventLog.length = 0
+}
+
 export const dropConnections = () => {
   for (const client of [...connections]) client.close()
 }

@@ -51,16 +51,18 @@ export const Carousel = ({ label, children, className }: CarouselProps) => {
         {children}
       </div>
       {position.pages > 1 && (
-        <div className="flex justify-center gap-2">
+        <div className="-my-1.75 flex justify-center">
           {Array.from({ length: position.pages }, (_, page) => (
             <button
               key={page}
               type="button"
               aria-label={`Página ${page + 1} de ${position.pages}`}
               aria-current={page === position.page}
-              className="size-2.5 rounded-full border border-primary aria-current:bg-primary"
+              className="group flex size-6 items-center justify-center rounded-full"
               onClick={() => track?.scrollTo({ left: page * track.clientWidth })}
-            />
+            >
+              <span aria-hidden="true" className="size-2.5 rounded-full border border-primary group-aria-current:bg-primary" />
+            </button>
           ))}
         </div>
       )}

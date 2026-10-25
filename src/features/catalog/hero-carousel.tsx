@@ -17,18 +17,20 @@ type HeroDotsProps = {
 
 const HeroDots = ({ items, active, onSelect, className }: HeroDotsProps) =>
   items.length > 1 ? (
-    <div className={cn('flex gap-2', className)}>
+    <div className={cn('-my-2 flex', className)}>
       {items.map((nft, index) => (
         <button
           key={nft.id}
           type="button"
           aria-label={`Mostrar destaque ${index + 1} de ${items.length}: ${nft.name}`}
           aria-current={index === active}
-          className="size-2 rounded-full bg-primary/50 aria-current:bg-primary"
+          className="group flex size-6 items-center justify-center rounded-full"
           onClick={() => {
             onSelect(index)
           }}
-        />
+        >
+          <span aria-hidden="true" className="size-2 rounded-full bg-primary/50 group-aria-current:bg-primary" />
+        </button>
       ))}
     </div>
   ) : null
@@ -75,7 +77,7 @@ export const HeroCarousel = () => {
           </div>
           {showImage && <HeroImage nft={current} sizes="40vw" className="w-[42%] rounded-2xl" />}
         </div>
-        <HeroDots items={items} active={active} onSelect={setActive} className="mt-3 justify-center" />
+        <HeroDots items={items} active={active} onSelect={setActive} className="mt-1 justify-center" />
       </div>
 
       <div className="hidden min-h-[28.75rem] items-center gap-10 md:grid md:grid-cols-[1fr_minmax(0,28.75rem)]">
@@ -89,7 +91,7 @@ export const HeroCarousel = () => {
           <Link to="/" hash="catalogo" className={buttonVariants({ className: 'mt-4 w-fit px-6 uppercase' })}>
             Explorar
           </Link>
-          <HeroDots items={items} active={active} onSelect={setActive} className="mt-8 self-end" />
+          <HeroDots items={items} active={active} onSelect={setActive} className="mt-6 self-end" />
         </div>
         {showImage && <HeroImage nft={current} sizes="28.75rem" className="w-full rounded-2xl" />}
       </div>

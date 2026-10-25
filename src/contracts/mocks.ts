@@ -32,7 +32,7 @@ export type MockState = v.InferOutput<typeof mockStateSchema>
 export const failureInputSchema = v.object({
   method: v.picklist(['get', 'post', 'put', 'patch', 'delete']),
   path: v.pipe(v.string(), v.startsWith('/')),
-  kind: v.union([v.literal('offline'), v.pipe(v.number(), v.integer(), v.minValue(400), v.maxValue(599))]),
+  kind: v.union([v.literal('offline'), v.literal('timeout'), v.pipe(v.number(), v.integer(), v.minValue(400), v.maxValue(599))]),
   times: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 1),
 })
 

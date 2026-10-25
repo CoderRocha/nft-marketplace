@@ -5,7 +5,7 @@ import { db, mutate, resetDb } from '@mocks/db'
 import { bearerToken } from '@mocks/auth'
 import { apiUrl, notFoundProblem, readJson, validationProblem } from '@mocks/network'
 import { updateNftEdition } from '@mocks/nft-updates'
-import { dropConnections, replayRecentEvents } from '@mocks/realtime'
+import { clearEventLog, dropConnections, replayRecentEvents } from '@mocks/realtime'
 import { applyScenario } from '@mocks/scenarios'
 
 const resetInputSchema = v.object({ scenario: v.optional(scenarioInputSchema.entries.scenario, 'padrao') })
@@ -26,6 +26,7 @@ export const controlHandlers = [
     const input = v.safeParse(resetInputSchema, (await readJson(request)) ?? {})
     if (!input.success) return validationProblem({ scenario: ['Cenário desconhecido.'] })
     resetDb()
+    clearEventLog()
     applyScenario(input.output.scenario)
     return stateResponse()
   }),
