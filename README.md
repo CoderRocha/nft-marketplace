@@ -153,7 +153,7 @@ npx playwright show-report
 | `00-mock-api` | Contratos da API simulada (filtros, paginação, 404, cenários, autenticação). |
 | `01-catalog` | Busca, filtros combinados, ordenação, paginação, histórico e refresh, resposta fora de ordem, página fora do intervalo, busca mobile pendente cancelada ao abrir um NFT. |
 | `02-detail` | Acesso direto, NFT inexistente, edição indisponível, limite de quantidade. |
-| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado e durante o checkout, com rascunho e carteira restaurados), logout apagando o rascunho, troca de usuário, pedido de outra conta (403). |
+| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado e durante o checkout, com rascunho e carteira restaurados), "Trocar carteira" refletida no checkout, logout apagando o rascunho, troca de usuário, pedido de outra conta (403). |
 | `04-favorites` | Atualização otimista, falha com rollback, persistência. |
 | `05-cart` | Quantidades, remoção, cupons, persistência após refresh, carrinho do visitante preservado no login. |
 | `06-purchase` | Compra completa do catálogo ao recibo, com recibo imutável. |
