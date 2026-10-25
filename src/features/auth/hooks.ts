@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { login, logout, register } from '@core/api/auth'
+import { saveDraft } from '@core/checkout-attempt'
+import { sessionQuery } from '@core/queries'
 import { endSession, startSession } from '@core/session'
 
 export const useSignIn = () => {
@@ -30,6 +32,8 @@ export const useSignOut = () => {
   const signOut = useMutation({
     mutationFn: () => logout().catch(() => undefined),
     onSettled: () => {
+      const userId = queryClient.getQueryData(sessionQuery().queryKey)?.user.id
+      if (userId) saveDraft(userId, null)
       endSession(queryClient)
       toast.success('Você saiu da sua conta.')
       void navigate({ to: '/' })

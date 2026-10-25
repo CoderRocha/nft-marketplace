@@ -12,6 +12,9 @@ const signInThroughForm = async (page: Page, user: DemoUser) => {
   await signInForm(page).getByRole('button', { name: 'Entrar' }).click()
 }
 
+const checkoutDraftKeys = (page: Page) =>
+  page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith('kurio:checkout-draft')))
+
 const signOut = async (page: Page) => {
   await page.getByRole('navigation', { name: 'Meu perfil' }).getByRole('button', { name: 'Sair' }).click()
   await expect(page.getByText('Você saiu da sua conta.')).toBeVisible()
@@ -91,6 +94,18 @@ test.describe('Conta e sessão', () => {
     await signInThroughForm(page, 'ana')
     await expect(page).toHaveURL(/\/checkout/)
     await expect(note).toHaveValue('Enviar para a carteira fria')
+  })
+
+  test('logout apaga o rascunho do checkout do navegador', async ({ page, mocks }) => {
+    await mocks.boot()
+    await mocks.loginAs('ana')
+    await buyFromDetail(page)
+    await goToCheckout(page)
+    await page.getByRole('textbox', { name: 'Observação do colecionador (opcional)' }).fill('Dados que não podem ficar')
+    await expect.poll(() => checkoutDraftKeys(page)).toHaveLength(1)
+    await page.goto('/profile')
+    await signOut(page)
+    expect(await checkoutDraftKeys(page)).toHaveLength(0)
   })
 
   test('pedido de outra conta não é exibido', async ({ page, mocks }) => {
