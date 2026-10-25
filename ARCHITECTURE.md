@@ -263,4 +263,3 @@ A análise do Lighthouse e a justificativa do resultado mobile estão no [README
 - Um carrinho pode misturar NFTs de redes diferentes. O pedido é pago com uma única carteira e rede, e a taxa de rede soma uma tarifa por rede distinta dos itens. Numa integração real, o checkout separaria o pedido por rede ou exigiria uma carteira compatível com cada uma.
 - O `expiresAt` da cotação é informativo; a validade é garantida pela `version` revalidada no envio do pedido.
 - Os baselines visuais foram gerados no Windows e dependem da renderização de fontes da plataforma.
-- O deploy na Vercel está pendente.

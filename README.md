@@ -2,6 +2,8 @@
 
 Marketplace de NFTs com descoberta, compra e conta do colecionador, construído sobre o layout "Kurio" do Figma. Toda a API (REST e Socket.IO) é simulada no navegador com MSW, então o projeto roda a partir de um checkout limpo, sem backend.
 
+**Demonstração publicada:** https://nft-marketplace-three-tau.vercel.app/
+
 Decisões de arquitetura, contratos, política de cache, sessão, carrinho, reconciliação em tempo real, limitações e desvios do Figma estão em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Stack
@@ -203,7 +205,11 @@ Avaliado e descartado: trocar o `tldts` pela variante `tldts-icann` por alias de
 
 ## Deploy
 
-**Pendente.** O `vercel.json` já está pronto: usa `npm run build:demo` (mocks ligados) e reescreve todas as rotas para `index.html`, para que acesso direto e refresh funcionem.
+Publicado na Vercel: https://nft-marketplace-three-tau.vercel.app/
+
+- O `vercel.json` usa `npm run build:demo` e reescreve as rotas da SPA para `index.html`, então acesso direto e refresh funcionam em qualquer tela. Arquivos estáticos (`mockServiceWorker.js`, `robots.txt`, imagens e `assets/`) têm prioridade sobre o rewrite.
+- As variáveis vêm do `.env.demo` versionado (`VITE_API_URL=/api`, `VITE_WS_URL=` vazio e `VITE_MOCKS=true`). Não é preciso configurar variáveis no painel da Vercel. Se alguma for criada lá, ela sobrescreve o arquivo, então precisa ter os mesmos valores.
+- Verificado na URL pública: mocks ativos, Socket.IO conectado, `nft.updated` aplicado no detalhe sem recarregar, rota inexistente, compra completa até o recibo e refresh no recibo.
 
 ## Estrutura
 
