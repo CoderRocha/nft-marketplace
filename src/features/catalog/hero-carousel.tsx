@@ -5,6 +5,7 @@ import { ArrowRightIcon } from 'lucide-react'
 import { useState } from 'react'
 import type { NftSummary } from '@contracts/nft'
 import { nftHighlightsQuery } from '@core/queries'
+import { useMediaQuery } from '@pattern/use-media-query'
 import { buttonVariants } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 
@@ -59,6 +60,7 @@ export const HeroCarousel = () => {
   const items = highlights.data?.hero ?? []
   const current = highlights.isPending ? undefined : items[active]
   const showImage = highlights.isPending || current !== undefined
+  const desktop = useMediaQuery('(min-width: 768px)')
 
   return (
     <section aria-label="Destaques" aria-roledescription="carrossel">
@@ -75,7 +77,7 @@ export const HeroCarousel = () => {
               <ArrowRightIcon className="size-4" />
             </Link>
           </div>
-          {showImage && <HeroImage nft={current} sizes="40vw" className="w-[42%] rounded-2xl" />}
+          {showImage && !desktop && <HeroImage nft={current} sizes="40vw" className="w-[42%] rounded-2xl" />}
         </div>
         <HeroDots items={items} active={active} onSelect={setActive} className="mt-1 justify-center" />
       </div>
@@ -93,7 +95,7 @@ export const HeroCarousel = () => {
           </Link>
           <HeroDots items={items} active={active} onSelect={setActive} className="mt-6 self-end" />
         </div>
-        {showImage && <HeroImage nft={current} sizes="28.75rem" className="w-full rounded-2xl" />}
+        {showImage && desktop && <HeroImage nft={current} sizes="28.75rem" className="w-full rounded-2xl" />}
       </div>
     </section>
   )

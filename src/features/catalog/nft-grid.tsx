@@ -5,7 +5,7 @@ import { NftCard, NftCardSkeleton } from '@features/catalog/nft-card'
 import { NftCardActions } from '@features/catalog/nft-card-actions'
 import { Button } from '@ui/button'
 
-const PRIORITY_CARDS = 3
+const PRIORITY_CARDS = 1
 
 const gridClassName = 'grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-6 max-md:[&>*:nth-child(even)]:mt-8'
 
