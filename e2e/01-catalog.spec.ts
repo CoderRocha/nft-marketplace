@@ -60,6 +60,17 @@ test.describe('Catálogo', () => {
     await expect(catalogCards(page)).toHaveCount(9)
   })
 
+  test('busca mobile pendente não puxa de volta ao abrir um NFT @main', async ({ page, mocks, isMobile }) => {
+    test.skip(!isMobile, 'A busca com debounce só existe no layout mobile.')
+    await mocks.boot()
+    await expect(catalogCards(page)).toHaveCount(9)
+    await page.getByRole('searchbox', { name: 'Explorar coleções' }).fill('emerald')
+    await catalogCards(page).first().getByRole('link').click()
+    await expect(page).toHaveURL(/\/nfts\//)
+    await page.waitForTimeout(700)
+    await expect(page).toHaveURL(/\/nfts\//)
+  })
+
   test('página fora do intervalo avisa e volta para a primeira página', async ({ page, mocks }) => {
     await mocks.boot('padrao', '/?pagina=99')
     await expect(page.getByText('Esta página não existe')).toBeVisible()

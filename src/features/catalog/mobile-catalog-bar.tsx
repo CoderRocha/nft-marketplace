@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { SearchIcon, SlidersHorizontalIcon } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { nftListQuery } from '@core/queries'
 import { FiltersSheet } from '@features/catalog/filters-sheet'
 import { toListParams } from '@features/catalog/list-params'
@@ -19,6 +19,10 @@ export const MobileCatalogBar = ({ search, onSearchChange }: MobileCatalogBarPro
   const [draft, setDraft] = useState(search.q)
   const [syncedQuery, setSyncedQuery] = useState(search.q)
   const timer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => {
+    window.clearTimeout(timer.current)
+  }, [])
 
   if (search.q !== syncedQuery) {
     setSyncedQuery(search.q)
