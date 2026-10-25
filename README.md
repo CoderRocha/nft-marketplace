@@ -151,20 +151,20 @@ npx playwright show-report
 | Spec | Cobertura |
 | --- | --- |
 | `00-mock-api` | Contratos da API simulada (filtros, paginação, 404, cenários, autenticação). |
-| `01-catalog` | Busca, filtros combinados, ordenação, paginação, histórico e refresh, resposta fora de ordem. |
+| `01-catalog` | Busca, filtros combinados, ordenação, paginação, histórico e refresh, resposta fora de ordem, página fora do intervalo. |
 | `02-detail` | Acesso direto, NFT inexistente, edição indisponível, limite de quantidade. |
-| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado), logout e troca de usuário. |
+| `03-auth` | Cadastro com conflito, login com retorno, expiração (inclusive com relógio controlado e durante o checkout, com rascunho e carteira restaurados), logout apagando o rascunho, troca de usuário, pedido de outra conta (403). |
 | `04-favorites` | Atualização otimista, falha com rollback, persistência. |
 | `05-cart` | Quantidades, remoção, cupons, persistência após refresh, carrinho do visitante preservado no login. |
 | `06-purchase` | Compra completa do catálogo ao recibo, com recibo imutável. |
 | `07-payment-failures` | Pagamento recusado, carteira recusada, clique duplo, timeout com mesma chave, preço alterado e esgotado. |
 | `08-account` | Perfil, avatar, senha e carteiras, com erros de validação e da API. |
-| `09-realtime-checkout` | `nft.updated` no detalhe, carrinho e checkout, bloqueando cotação desatualizada. |
+| `09-realtime-checkout` | `nft.updated` no detalhe (com aviso acessível), carrinho e checkout, bloqueando cotação desatualizada. |
 | `10-realtime-resilience` | Eventos duplicados e antigos, queda e reconexão, pedido pendente retomado. |
 | `11-a11y` | Varredura axe WCAG 2.1 A/AA, teclado, foco em diálogos e gaveta, erros associados aos campos. |
 | `12-loading` | Skeletons em rede lenta, falha e nova tentativa. |
 | `visual` | Regressão visual de Início, detalhe, carrinho e pagamento (desktop e mobile). |
-| `responsive` | Ausência de overflow horizontal em todas as telas, nas três larguras. |
+| `responsive` | Ausência de overflow horizontal em todas as telas, nas quatro larguras (390, 768, 1440 e 320 px de reflow). |
 
 Observações:
 
