@@ -2,7 +2,7 @@ import { useSelector } from '@tanstack/react-form'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { cn } from 'cn'
 import { ChevronLeftIcon } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as v from 'valibot'
 import type { Cart } from '@contracts/cart'
 import { NETWORKS } from '@contracts/nft'
@@ -17,6 +17,7 @@ import { multiplyEth } from '@core/money'
 import { cartQuery, quoteQuery } from '@core/queries'
 import { useCartOwner } from '@core/session'
 import { createFormSubmitHandler, schemaValidation, useAppForm } from '@pattern/form.hooks'
+import { useMediaQuery } from '@pattern/use-media-query'
 import { CouponForm } from '@features/cart/coupon-form'
 import { useQuote } from '@features/cart/hooks'
 import { usePlaceOrder, useWalletConnection, type CheckoutReview } from '@features/checkout/hooks'
@@ -73,6 +74,24 @@ export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChang
   const { connection, connect, disconnect } = useWalletConnection()
   const { placeOrder, verifying } = usePlaceOrder(userId)
   const quote = useQuote(cart)
+  const desktop = useMediaQuery('(min-width: 768px)')
+  const collectorHeading = useRef<HTMLHeadingElement>(null)
+  const walletHeading = useRef<HTMLHeadingElement>(null)
+  const renderedStep = useRef(step)
+
+  useEffect(() => {
+    if (renderedStep.current === step) return
+    renderedStep.current = step
+    if (desktop) return
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0 })
+      const heading = step === 'carteira' ? walletHeading.current : collectorHeading.current
+      heading?.focus({ preventScroll: true })
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+    }
+  }, [step, desktop])
 
   const form = useAppForm({
     defaultValues: restored.values,
@@ -178,7 +197,7 @@ export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChang
     >
       <form.AppForm>
         <section aria-labelledby="colecionador-titulo" className={cn('flex flex-col gap-5', step === 'carteira' && 'max-md:hidden')}>
-          <h2 id="colecionador-titulo" className="text-[0.9375rem] font-semibold">
+          <h2 id="colecionador-titulo" ref={collectorHeading} tabIndex={-1} className="text-[0.9375rem] font-semibold focus:outline-none">
             Perfil do colecionador
           </h2>
           <form.FormErrorAlert />
@@ -245,7 +264,9 @@ export const CheckoutForm = ({ userId, profile, wallets, cart, step, onStepChang
             >
               <ChevronLeftIcon className="size-5" />
             </button>
-            <h2 className="text-lg font-bold">Pagamento com carteira</h2>
+            <h2 ref={walletHeading} tabIndex={-1} className="text-lg font-bold focus:outline-none">
+              Pagamento com carteira
+            </h2>
           </div>
           <section aria-labelledby="seus-nfts" className="flex flex-col gap-4">
             <h2 id="seus-nfts" className="text-[0.9375rem] font-semibold">
