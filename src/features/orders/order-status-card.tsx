@@ -157,7 +157,7 @@ export const OrderStatusCard = ({ userId, orderId }: { userId: string; orderId: 
       />
     )
   }
-  if (order.isError) {
+  if (order.isLoadingError) {
     return (
       <ErrorState
         error={order.error}

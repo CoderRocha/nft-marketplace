@@ -56,7 +56,7 @@ export const CheckoutPage = ({ userId, step, onStepChange }: CheckoutPageProps) 
   const profile = useQuery(profileQuery(userId))
   const wallets = useQuery(walletsQuery(userId))
   const cart = useCart()
-  const failed = [profile, wallets, cart].find((query) => query.isError)
+  const failed = [profile, wallets, cart].find((query) => query.isLoadingError)
 
   const content = () => {
     if (failed) {

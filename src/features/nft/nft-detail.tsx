@@ -108,7 +108,7 @@ export const NftDetail = ({ nftId, search, onSearchChange, renderActions }: NftD
       <div className="flex flex-col gap-4">
         <Breadcrumb name={detail.data?.name} />
         {detail.isPending && <NftDetailSkeleton />}
-        {detail.isError && (
+        {detail.isLoadingError && (
           <ErrorState
             error={detail.error}
             retrying={detail.isFetching}

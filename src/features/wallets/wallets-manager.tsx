@@ -68,7 +68,7 @@ export const WalletsManager = ({ userId }: { userId: string }) => {
       </div>
     )
   }
-  if (wallets.isError) {
+  if (wallets.isLoadingError) {
     return (
       <ErrorState
         error={wallets.error}

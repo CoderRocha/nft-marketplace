@@ -32,7 +32,7 @@ export const Catalog = ({ search, onSearchChange }: CatalogProps) => {
 
   const content = () => {
     if (list.isPending) return <NftGridSkeleton count={CATALOG_PAGE_SIZE} />
-    if (list.isError) {
+    if (list.isLoadingError) {
       return (
         <ErrorState
           error={list.error}

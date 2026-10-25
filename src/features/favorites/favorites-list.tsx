@@ -16,7 +16,7 @@ export const FavoritesList = ({ userId }: { userId: string }) => {
         Lista de interesse
       </h1>
       {favorites.isPending && <NftGridSkeleton count={3} />}
-      {favorites.isError && (
+      {favorites.isLoadingError && (
         <ErrorState
           error={favorites.error}
           retrying={favorites.isFetching}

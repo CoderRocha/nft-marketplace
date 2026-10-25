@@ -97,7 +97,7 @@ export const ProfileForm = ({ userId }: { userId: string }) => {
       </div>
     )
   }
-  if (profile.isError) {
+  if (profile.isLoadingError) {
     return (
       <ErrorState
         error={profile.error}

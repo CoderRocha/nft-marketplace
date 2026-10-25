@@ -156,7 +156,7 @@ export const request = async <TSchema extends v.GenericSchema>(
   url: string,
   { schema, params, body, headers, signal, timeout }: RequestOptions<TSchema>,
 ): Promise<v.InferOutput<TSchema>> => {
-  const authenticated = getSessionToken() !== null
+  const sentToken = getSessionToken()
   try {
     const response = await http.request<unknown>({ method, url, params, data: body, headers, signal, timeout })
     const parsed = v.safeParse(schema, response.data)
@@ -172,7 +172,8 @@ export const request = async <TSchema extends v.GenericSchema>(
   } catch (error) {
     if (isCancel(error)) throw error
     const friendly = toFriendlyError(error)
-    if (friendly.status === 401 && authenticated) for (const listener of unauthorizedListeners) listener(friendly)
+    const sessionStillCurrent = sentToken !== null && getSessionToken() === sentToken
+    if (friendly.status === 401 && sessionStillCurrent) for (const listener of unauthorizedListeners) listener(friendly)
     throw friendly
   }
 }

@@ -84,7 +84,7 @@ export const CartPage = () => {
 
   const content = () => {
     if (cart.isPending) return <CartSkeleton />
-    if (cart.isError) {
+    if (cart.isLoadingError) {
       return (
         <ErrorState
           error={cart.error}

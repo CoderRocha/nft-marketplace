@@ -44,7 +44,7 @@ export const CartSummary = ({ cart, className }: CartSummaryProps) => {
         <span className="hidden text-[0.8125rem] font-semibold md:block">Código promocional</span>
         <CouponForm appliedCode={cart.couponCode} appliedPercent={data?.coupon?.percent} />
       </div>
-      {quote.isError ? (
+      {quote.isLoadingError ? (
         <ErrorState
           error={quote.error}
           retrying={quote.isFetching}
