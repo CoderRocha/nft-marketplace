@@ -1,7 +1,7 @@
 import * as v from 'valibot'
-import { COLLECTOR_NOTE_MAX } from '@contracts/order'
+import { COLLECTOR_NOTE_MAX, WALLET_SOURCES, type WalletSource } from '@contracts/order'
 import type { Profile } from '@contracts/profile'
-import type { Wallet } from '@contracts/wallet'
+import type { Wallet, Wallets } from '@contracts/wallet'
 import { optionalText } from '@core/schemas'
 import { usernameSchema } from '@features/auth/schemas'
 import { addressFitsNetwork, INVALID_ADDRESS_MESSAGE, walletFieldsFormSchema } from '@features/wallets/schemas'
@@ -35,7 +35,7 @@ export const collectorDefaults = (profile: Profile, wallet: Wallet | null): Coll
   ...walletFieldValues(wallet),
 })
 
-const draftSchema = v.partial(
+const draftFieldsSchema = v.partial(
   v.object({
     displayName: v.string(),
     username: v.string(),
@@ -51,9 +51,30 @@ const draftSchema = v.partial(
   }),
 )
 
-export const mergeDraft = (defaults: CollectorFormValues, draft: unknown): CollectorFormValues => {
-  const parsed = v.safeParse(draftSchema, draft)
-  return parsed.success ? { ...defaults, ...parsed.output } : defaults
+const draftSourceSchema = v.object({ walletSource: v.optional(v.picklist(WALLET_SOURCES)) })
+
+export const walletOf = (wallets: Wallets, source: WalletSource): Wallet | null =>
+  source === 'primary' ? wallets.primary : source === 'secondary' ? wallets.secondary : null
+
+export const registeredSource = (wallets: Wallets): WalletSource =>
+  wallets.primary ? 'primary' : wallets.secondary ? 'secondary' : 'custom'
+
+const sourceForAddress = (wallets: Wallets, address: string | undefined): WalletSource =>
+  address === undefined
+    ? registeredSource(wallets)
+    : ((['primary', 'secondary'] as const).find((source) => walletOf(wallets, source)?.address === address) ?? 'custom')
+
+export const restoreDraft = (profile: Profile, wallets: Wallets, draft: unknown): { values: CollectorFormValues; source: WalletSource } => {
+  const fields = v.safeParse(draftFieldsSchema, draft)
+  const saved = fields.success ? fields.output : {}
+  const savedSource = v.safeParse(draftSourceSchema, draft)
+  const requested = (savedSource.success ? savedSource.output.walletSource : undefined) ?? sourceForAddress(wallets, saved.address)
+  const source = requested === 'custom' || walletOf(wallets, requested) ? requested : registeredSource(wallets)
+  const wallet = walletOf(wallets, source)
+  return {
+    values: { ...collectorDefaults(profile, wallet), ...saved, ...(wallet ? walletFieldValues(wallet) : {}) },
+    source,
+  }
 }
 
 export const checkoutSearchSchema = v.object({

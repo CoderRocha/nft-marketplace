@@ -126,6 +126,27 @@ test.describe('Conta e sessão', () => {
     await expect(otherWallet).toBeChecked()
   })
 
+  test('trocar a carteira principal pelo perfil reflete no checkout sem perder o rascunho', async ({ page, mocks }) => {
+    const newAddress = '0x2222222222222222222222222222222222222222'
+    await mocks.boot()
+    await mocks.loginAs('ana')
+    await buyFromDetail(page)
+    await goToCheckout(page)
+    const note = page.getByRole('textbox', { name: 'Observação do colecionador (opcional)' })
+    await note.fill('Manter esta observação')
+    await expect.poll(() => checkoutDraftKeys(page)).toHaveLength(1)
+    await page.getByRole('link', { name: 'Trocar carteira' }).click()
+    const primaryForm = page.getByRole('form', { name: 'Carteira principal' })
+    await primaryForm.getByRole('textbox', { name: 'Endereço da carteira' }).fill(newAddress)
+    await primaryForm.getByRole('button', { name: 'Salvar carteira' }).click()
+    await expect(page.getByText('Carteira principal salva.')).toBeVisible()
+    await page.goBack()
+    await expect(page).toHaveURL(/\/checkout/)
+    await expect(page.getByRole('textbox', { name: 'Endereço da carteira' })).toHaveValue(newAddress)
+    await expect(page.getByRole('radio', { name: /^Principal/ })).toBeChecked()
+    await expect(note).toHaveValue('Manter esta observação')
+  })
+
   test('logout apaga o rascunho do checkout do navegador', async ({ page, mocks }) => {
     await mocks.boot()
     await mocks.loginAs('ana')
