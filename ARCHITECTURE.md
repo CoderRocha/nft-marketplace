@@ -1,12 +1,12 @@
 # Arquitetura
 
-Aqui explico como o código está organizado, os contratos com a API, como sessão, carrinho, pedido, cache e tempo real funcionam, e o que mudou em relação ao Figma. Para rodar o projeto, veja o [README](README.md).
+Aqui explico como o código está organizado, os contratos com a API, como sessão, carrinho, pedido, cache e tempo real funcionam, e o que mudou em relação ao layout do Figma. Para rodar o projeto, veja o [README](README.md).
 
 ---
 
 ## Camadas
 
-Separei o código de `src/` em camadas e usei o `eslint-plugin-boundaries` para o lint bloquear imports fora da tabela abaixo. Também configurei o lint para não aceitar barrel files, classes, `as` nem imports relativos entre módulos.
+Eu separei o código de `src/` em camadas e usei o `eslint-plugin-boundaries` para o lint bloquear imports fora da tabela abaixo. Também configurei o lint para não aceitar barrel files, classes, `as` nem imports relativos entre módulos.
 
 | Camada | Para que serve | Pode importar |
 | --- | --- | --- |
@@ -152,7 +152,7 @@ No mock, fiz toda mudança de NFT e todo fim de pedido passar por uma única fun
 
 ## Socket.IO nos mocks
 
-Simulei o servidor Socket.IO com o `ws.link` do MSW e o `@mswjs/socket.io-binding`, que fala o protocolo do Engine.IO e do Socket.IO. O app usa o `socket.io-client` normal, sem nenhum atalho.
+Eu simulei o servidor Socket.IO com o `ws.link` do MSW e o `@mswjs/socket.io-binding`, que fala o protocolo do Engine.IO e do Socket.IO. O app usa o `socket.io-client` normal, sem nenhum atalho.
 
 Detalhes e limitações desse transporte:
 
@@ -172,7 +172,7 @@ O token é guardado no `localStorage` e o Axios envia em toda chamada. Ele dura 
 
 Depois de um refresh, a sessão é recuperada com `GET /auth/session`. Se a resposta for 401, o token é apagado e o usuário fica deslogado.
 
-Checkout, perfil, carteiras, favoritos e pedidos passam por um único guard (`requireSession`). Sem sessão, o usuário vai para o login e volta para onde estava depois de entrar.
+O checkout, perfil, carteiras, favoritos e pedidos passam por um único guard (`requireSession`). Sem sessão, o usuário vai para o login e volta para onde estava depois de entrar.
 
 Se a sessão expira no meio do uso, qualquer 401 de uma chamada com token encerra a sessão. Numa página privada, o app leva ao login com o aviso de sessão expirada; numa página pública, só avisa.
 
@@ -194,7 +194,7 @@ Adicionar ou aumentar a quantidade respeita o estoque da edição e o limite de 
 
 Cada item guarda o `acceptedPrice`, que é o preço que o usuário viu ao adicionar. Ele só muda quando o usuário clica em "Aceitar novo preço".
 
-O resumo vem sempre da cotação (`POST /quotes`), calculada em wei:
+O resumo vem sempre da cotação (`POST /quotes`), calculada em:
 
 - subtotal com os preços atuais;
 - desconto do cupom;
@@ -208,7 +208,7 @@ Enquanto houver pendência, o botão "Conectar e finalizar" fica bloqueado.
 
 ## Pedido
 
-"Confirmar compra" busca uma cotação nova e abre a revisão. No envio, o servidor calcula a cotação de novo. Se a versão mudou ou tem pendência, responde `quote_outdated` com a cotação nova. Se só o preço mudou, o usuário precisa clicar em "Aceitar novos valores" e confirmar de novo; se uma edição esgotou, o diálogo leva ao carrinho.
+A ação de "Confirmar compra" busca uma cotação nova e abre a revisão. No envio, o servidor calcula a cotação de novo. Se a versão mudou ou tem pendência, responde `quote_outdated` com a cotação nova. Se só o preço mudou, o usuário precisa clicar em "Aceitar novos valores" e confirmar de novo; se uma edição esgotou, o diálogo leva ao carrinho.
 
 Cada tentativa tem uma chave (`crypto.randomUUID`) ligada ao hash do corpo e salva por usuário no `sessionStorage`. O mesmo corpo usa a mesma chave, e um corpo diferente gera outra. O servidor devolve o mesmo pedido para a mesma chave e o mesmo corpo, e responde `idempotency_conflict` se a chave vier com outro corpo.
 
@@ -234,11 +234,11 @@ Na confirmação, o servidor baixa o estoque e tira do carrinho só os itens e q
 | Cotação | `staleTime: 0`. A chave inclui o `updatedAt` do carrinho, então qualquer mudança gera uma cotação nova |
 | Pedido pendente | Consulta a cada 5 s como reserva. O evento `order.updated` atualiza na hora |
 
-Leituras tentam de novo até 2 vezes, só em falha de rede, timeout ou erro 5xx. Respeitam o `Retry-After` ou esperam cada vez mais, até 8 s. Erros 4xx e respostas fora do contrato não são repetidos.
+As leituras tentam de novo até 2 vezes, só em falha de rede, timeout ou erro 5xx. Respeitam o `Retry-After` ou esperam cada vez mais, até 8 s. Erros 4xx e respostas fora do contrato não são repetidos.
 
 Se uma atualização em segundo plano falha e a tela já tem dados, os dados continuam na tela e a próxima atualização recupera. O erro com "Tentar novamente" só aparece quando a primeira carga falha.
 
-Mutations não tentam de novo sozinhas. A única exceção é o pedido, que reenvia com a mesma chave de idempotência.
+Já as mutations não tentam de novo sozinhas. A única exceção é o pedido, que reenvia com a mesma chave de idempotência.
 
 Favoritar, mudar a quantidade no carrinho e remover item usam atualização otimista. Se der erro, o estado anterior volta e a mensagem da API aparece.
 
@@ -275,7 +275,7 @@ Breakpoints:
 - de 768 a 1024 px, header de desktop e filtros numa gaveta;
 - acima de 1024 px, filtros na lateral.
 
-No mobile, detalhe, carrinho, pagamento, login e cadastro escondem a barra inferior, como no Figma.
+No mobile, o detalhe, carrinho, pagamento, login e cadastro escondem a barra inferior, como no Figma.
 
 Outras decisões:
 
@@ -307,7 +307,7 @@ Outras decisões:
 
 ## Imagens, ícones e fonte
 
-Não exportei as imagens individuais do Figma. No lugar, usei quatro artes de exemplo, convertidas para WebP em 320, 640 e 1024 px, que ficam em `public/images/nfts/` (de 8 KB a 73 KB). Os PNG originais e os prints do Figma ficam fora do repositório.
+Usei quatro artes de exemplo do Figma, convertidas para WebP em 320, 640 e 1024 px, que ficam em `public/images/nfts/` (de 8 KB a 73 KB).
 
 Cada arte é uma família, como no Figma:
 
@@ -318,12 +318,11 @@ Cada arte é uma família, como no Figma:
 
 Distribuí as artes na primeira página do catálogo e nos banners do mesmo jeito que aparecem nos prints. As NFTs geradas recebem a arte pelo nome (Ape, Nomad, Baron e Vessel, Beat, Signal e Echo); os outros nomes alternam entre as quatro. Os atributos acompanham a arte.
 
-Outras trocas:
+Outras trocas não mencionadass:
 
-- Escrevi o logo "KURIO" como texto, na fonte do layout.
 - Troquei o ícone "Thank you" do recibo pelo `MailCheck` do Lucide.
 - Usei o `react-icons` para os ícones de marca (Google, Facebook, X, LinkedIn, Instagram e YouTube), porque o Lucide não tem ícones de marca.
-- Sirvo a fonte Roboto Mono pelo próprio app (`@fontsource-variable/roboto-mono`), sem depender do Google Fonts.
+- Utilizei a fonte Roboto Mono pelo próprio app (`@fontsource-variable/roboto-mono`), sem depender do Google Fonts.
 
 ---
 
@@ -368,4 +367,3 @@ O resultado do Lighthouse e a explicação da nota mobile estão no [README](REA
 - Transações, links de explorador e conexão de carteira são simulados. Não tem integração com blockchain, extensão de carteira nem gateway de pagamento.
 - Um carrinho pode ter NFTs de redes diferentes. O pedido é pago com uma carteira e uma rede só, e a taxa soma uma tarifa por rede. Se fosse integrar com uma rede de verdade, eu separaria o pedido por rede ou pediria uma carteira para cada uma.
 - O `expiresAt` da cotação é só informativo. Quem garante que a cotação vale é a `version`, conferida de novo no envio do pedido.
-- Os baselines visuais foram gerados no Windows e dependem de como a plataforma renderiza as fontes.
