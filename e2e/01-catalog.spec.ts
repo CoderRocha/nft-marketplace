@@ -23,8 +23,8 @@ test.describe('Catálogo', () => {
     await filters(page).getByRole('button', { name: /Música/ }).click()
     await expect(page).not.toHaveURL(/pagina=/)
     await filters(page).getByRole('button', { name: /Polygon/ }).click()
-    await expect(page).toHaveURL(/colecao=.*musica/)
-    await expect(page).toHaveURL(/rede=.*polygon/)
+    await expect(page).toHaveURL(/colecao=musica/)
+    await expect(page).toHaveURL(/rede=polygon/)
     await expect(catalogCards(page).filter({ hasText: 'Golden Beat #207' })).toBeVisible()
     await expect(catalogCards(page).filter({ hasText: 'Golden Signal #160' })).toHaveCount(0)
 

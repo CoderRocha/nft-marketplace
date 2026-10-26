@@ -29,4 +29,13 @@ export const passwordSchema = v.pipe(
   v.maxLength(PASSWORD_MAX, () => `Use no máximo ${PASSWORD_MAX} caracteres.`),
 )
 
+export const searchNumberSchema = v.pipe(v.union([v.number(), v.pipe(v.string(), v.transform(Number))]), v.number())
+
+export const searchListSchema = <TItem extends v.GenericSchema<string>>(item: TItem) =>
+  v.pipe(
+    v.union([v.string(), v.array(v.string())]),
+    v.transform((value) => (Array.isArray(value) ? value : [value])),
+    v.array(item),
+  )
+
 export const safeRedirectSchema = v.fallback(v.optional(v.pipe(v.string(), v.regex(/^\/(?![/\\])/))), undefined)
